@@ -22,7 +22,7 @@
 	 	<Compile Include="../Source/*" />
 		
 	 	<!-- Rimworld -->
-	 	<Reference Include="/mnt/game/RimWorldLinux_Data/Managed/*.dll">
+		<Reference Include="../../../RimWorldLinux_Data/Managed/*.dll" Exclude="../../../RimWorldLinux_Data/Managed/System*.dll;../../../RimWorldLinux_Data/Managed/mscorlib.dll">
 			<Private>False</Private>
 		</Reference>
 

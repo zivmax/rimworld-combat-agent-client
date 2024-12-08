@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build dll",
             "args": [],
-            "program": "/mnt/game/RimWorldLinux",
+            "program": "../../RimWorldLinux",
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
             "internalConsoleOptions":"neverOpen",
