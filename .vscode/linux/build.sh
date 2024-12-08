@@ -4,4 +4,4 @@
 find . -type d -name 'Assemblies' -exec rm -rf {}/* \;
 
 # Build DLL
-dotnet build .vscode
+dotnet build .vscode/linux
