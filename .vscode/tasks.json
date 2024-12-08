@@ -2,13 +2,23 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build dll",
+            "label": "build dll linux",
             "type": "shell",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "command": ".vscode/build.sh",
+        },
+        {
+            "label": "build dll windows",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": ".vscode\\build.bat",
+            "problemMatcher": []
         },
     ]
 }

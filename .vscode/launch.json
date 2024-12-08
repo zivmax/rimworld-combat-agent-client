@@ -1,19 +1,28 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Rimworld Mod Project",
+            "name": "Rimworld Mod Project (Linux)",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build dll",
+            "preLaunchTask": "build dll linux",
             "args": [],
             "program": "../../RimWorldLinux",
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
-            "internalConsoleOptions":"neverOpen",
+            "internalConsoleOptions": "neverOpen",
+            "stopAtEntry": true
+        },
+        {
+            "name": "Rimworld Mod Project (Windows)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build dll windows",
+            "args": [],
+            "program": "..\\..\\RimWorldWin64.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "internalConsoleOptions": "neverOpen",
             "stopAtEntry": true
         }
     ]
