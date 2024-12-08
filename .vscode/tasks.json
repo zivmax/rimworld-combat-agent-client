@@ -8,7 +8,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "command": ".vscode/linux/build.sh",
+            "command": "/bin/bash .vscode/linux/build.sh",
         },
         {
             "label": "build dll windows",
