@@ -14,7 +14,7 @@
             "stopAtEntry": true
         },
         {
-            "name": "Rimworld Mod Project (Windows)",
+            "name": "Rimworld Mod Project (Win64)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build dll windows",
