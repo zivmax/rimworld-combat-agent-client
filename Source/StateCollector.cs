@@ -65,35 +65,38 @@ namespace CombatAgent
 
         public override void MapComponentTick()
         {
-
-            CollectPawnData();
-
             if (Find.TickManager.TicksGame % 1000 == 0)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("Collected pawn data:");
-
-                foreach (var pawnData in pawnDataCache)
-                {
-                    sb.AppendLine($"{pawnData.Key}:");
-                    sb.AppendLine($"  Position: {pawnData.Value.Position}");
-                    sb.AppendLine($"  Wearing: {string.Join(", ", pawnData.Value.Apparel)}");
-                    sb.AppendLine($"  Equipment: {pawnData.Value.Equipment}");
-
-                    sb.AppendLine($"  Combat Stats:");
-                    foreach (var stat in pawnData.Value.CombatStats)
-                    {
-                        sb.AppendLine($"    {stat.Key}: {stat.Value:F2}");
-                    }
-
-                    sb.AppendLine($"  Health Stats:");
-                    foreach (var stat in pawnData.Value.HealthStats)
-                    {
-                        sb.AppendLine($"    {stat.Key}: {stat.Value:F2}");
-                    }
-                }
-                Log.Message(sb.ToString());
+                CollectPawnData();
+                LogPawnData();
             }
+        }
+
+        private void LogPawnData()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Collected pawn data:");
+
+            foreach (var pawnData in pawnDataCache)
+            {
+                sb.AppendLine($"{pawnData.Key}:");
+                sb.AppendLine($"  Position: {pawnData.Value.Position}");
+                sb.AppendLine($"  Wearing: {string.Join(", ", pawnData.Value.Apparel)}");
+                sb.AppendLine($"  Equipment: {pawnData.Value.Equipment}");
+
+                sb.AppendLine($"  Combat Stats:");
+                foreach (var stat in pawnData.Value.CombatStats)
+                {
+                    sb.AppendLine($"    {stat.Key}: {stat.Value:F2}");
+                }
+
+                sb.AppendLine($"  Health Stats:");
+                foreach (var stat in pawnData.Value.HealthStats)
+                {
+                    sb.AppendLine($"    {stat.Key}: {stat.Value:F2}");
+                }
+            }
+            Log.Message(sb.ToString());
         }
     }
 
@@ -146,7 +149,7 @@ namespace CombatAgent
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Map Data Sample (10x10 area from origin):");
-            
+
             int sampleSize = 10;
             for (int z = 0; z < sampleSize && z < map.Size.z; z++)
             {
