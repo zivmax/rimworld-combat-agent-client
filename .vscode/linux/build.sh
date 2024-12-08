@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Remove unnecessary assemblies
-find . -type d -name 'Assemblies' -exec rm -rf {}/* \;
+rm -rf ./*/Assemblies/*.*
 
 # Build DLL
 dotnet build .vscode/linux

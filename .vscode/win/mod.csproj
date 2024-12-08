@@ -19,16 +19,11 @@
 
  	<ItemGroup>
 	 	<!-- Mod -->
-	 	<Compile Include="../Source/*" />
+	 	<Compile Include="../../Source/*" />
 		
 	 	<!-- Rimworld -->
-		<Reference Include="../../../RimWorldWin64_Data/Managed/*.dll" Exclude="../../../RimWorldWin64_Data/Managed/System*.dll;../../../RimWorldWin64_Data/Managed/mscorlib.dll">
+		<Reference Include="../../../../RimWorldWin64_Data/Managed/*.dll" Exclude="../../../RimWorldWin64_Data/Managed/System*.dll;../../../RimWorldWin64_Data/Managed/mscorlib.dll">
 			<Private>False</Private>
 		</Reference>
-
-		<!-- *Uncomment for Harmony*-->
-		<!-- <Reference Include="C:/Program Files (x86)/Steam/steamapps/workshop/content/294100/2009463077/Current/Assemblies/0Harmony.dll">
-			<Private>False</Private>
-		</Reference> -->
 	</ItemGroup>
 </Project>
