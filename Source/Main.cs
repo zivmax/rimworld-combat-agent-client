@@ -14,30 +14,49 @@ using Verse.Grammar;
 using RimWorld;
 using RimWorld.Planet;
 
-namespace Template
+namespace CombatAgent
 {
-    [DefOf]
-    public class TemplateDefOf
+    public class PawnInfoLogger : MapComponent
     {
-        public static LetterDef success_letter;
-    }
+        public PawnInfoLogger(Map map) : base(map) { }
 
-    public class MyMapComponent : MapComponent
-    {
-        public MyMapComponent(Map map) : base(map){}
-        public override void FinalizeInit()
+        public override void MapComponentTick()
         {
-            Messages.Message("Success", null, MessageTypeDefOf.PositiveEvent);
-            Find.LetterStack.ReceiveLetter(new TaggedString("Success"), new TaggedString("Success message"), TemplateDefOf.success_letter, "", 0);
-        }
-    }
+            base.MapComponentTick();
 
-    [StaticConstructorOnStartup]
-    public static class Start
-    {
-        static Start()
-        {
-            Log.Message("Mod template loaded successfully!");
+            if (Find.TickManager.TicksGame % 1000 == 0) // Log every 1000 ticks
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("Pawn positions:");
+
+                foreach (Pawn pawn in map.mapPawns.AllPawns)
+                {
+                    if (pawn.RaceProps.Humanlike)
+                    {
+                        sb.AppendLine($"{pawn.LabelShort}: {pawn.Position}");
+                        if (pawn.apparel != null && pawn.apparel.WornApparel != null)
+                        {
+                            sb.AppendLine($"  Wearing: {string.Join(", ", pawn.apparel.WornApparel.Select(a => a.LabelShort))}");
+                        }
+                        if (pawn.equipment != null && pawn.equipment.Primary != null)
+                        {
+                            sb.AppendLine($"  Equipment: {pawn.equipment.Primary.LabelShort}");
+                        }
+                        sb.AppendLine($"  Combat Stats:");
+                        sb.AppendLine($"    Melee Hit Chance: {pawn.GetStatValue(StatDefOf.MeleeHitChance):F2}");
+                        sb.AppendLine($"    Melee Dodge Chance: {pawn.GetStatValue(StatDefOf.MeleeDodgeChance):F2}");
+                        sb.AppendLine($"    Melee DPS: {pawn.GetStatValue(StatDefOf.MeleeDPS):F2}");
+                        sb.AppendLine($"    Shooting Accurancy: {pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn):F2}");
+                        sb.AppendLine($"    Aiming Time: {pawn.GetStatValue(StatDefOf.AimingDelayFactor):F2}");
+                        sb.AppendLine($"    Move Speed: {pawn.GetStatValue(StatDefOf.MoveSpeed):F2}");
+                        sb.AppendLine($"  Health Stats:");
+                        sb.AppendLine($"    Pain Shock: {pawn.health.hediffSet.PainTotal:F2}");
+                        sb.AppendLine($"    Blood Loss: {pawn.health.hediffSet.BleedRateTotal:F2}");
+                    }
+                }
+
+                Log.Message(sb.ToString());
+            }
         }
     }
 }
