@@ -14,10 +14,6 @@ using Verse.Grammar;
 using RimWorld;
 using RimWorld.Planet;
 
-// *Uncomment for Harmony*
-// using System.Reflection;
-// using HarmonyLib;
-
 namespace Template
 {
     [DefOf]
@@ -42,23 +38,6 @@ namespace Template
         static Start()
         {
             Log.Message("Mod template loaded successfully!");
-
-            // *Uncomment for Harmony*
-            // Harmony harmony = new Harmony("Template");
-            // harmony.PatchAll( Assembly.GetExecutingAssembly() );
         }
     }
-
-    // *Uncomment for Harmony*
-    // [HarmonyPatch(typeof(LetterStack), "ReceiveLetter")]
-    // [HarmonyPatch(new Type[] {typeof(TaggedString), typeof(TaggedString), typeof(LetterDef), typeof(string), typeof(int), typeof(bool)})]
-    // public static class LetterTextChange
-    // {
-    //     public static bool Prefix(ref TaggedString text)
-    //     {
-    //         text += new TaggedString(" with harmony");
-    //         return true;
-    //     }
-    // }
-
 }
