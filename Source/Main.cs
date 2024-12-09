@@ -16,28 +16,24 @@ using RimWorld.Planet;
 
 namespace CombatAgent
 {
-    [DefOf]
-    public class LetterDefinitions
+    public class CombatAgentMain : GameComponent
     {
-        public static LetterDef success_letter;
-    }
-
-    public class NotifyComp : MapComponent
-    {
-        public NotifyComp(Map map) : base(map){}
-        public override void FinalizeInit()
+        public CombatAgentMain(Game game) { }
+        public override void GameComponentTick()
         {
-            Messages.Message("Success", null, MessageTypeDefOf.PositiveEvent);
-            Find.LetterStack.ReceiveLetter(new TaggedString("Success"), new TaggedString("Success message"), LetterDefinitions.success_letter, "", 0);
-        }
-    }
-
-    [StaticConstructorOnStartup]
-    public static class Start
-    {
-        static Start()
-        {
-            Log.Message("Combat Agent mod loaded successfully!");
+            if (Find.TickManager.TicksGame % 60 == 0)
+            {
+                StateCollector.CollectPawnData();
+                StateCollector.CollectMapData();
+                var state = new GameState
+                {
+                    Map = StateCollector.GetMapState(),
+                    Pawns = StateCollector.GetPawnStates(),
+                    Tick = Find.TickManager.TicksGame
+                };
+                StateCollector.LogMapData();
+                StateCollector.LogPawnData();
+            }
         }
     }
 }
