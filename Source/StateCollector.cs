@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 
 using UnityEngine;
 using Verse;
@@ -16,147 +16,115 @@ using RimWorld.Planet;
 
 namespace CombatAgent
 {
-    public class PawnInfoCollector : MapComponent
+    public static class StateCollector
     {
-        public PawnInfoCollector(Map map) : base(map) { }
+        private static Map Map => Find.CurrentMap;
 
-        private class PawnData
+        // Caches
+        private static readonly PawnStates pawnStatesCache = new PawnStates();
+
+        private static MapState mapStateCache;
+
+        // Pawn-related methods
+        public static void CollectPawnData()
         {
-            public string Label;
-            public IntVec3 Position;
-            public List<string> Apparel;
-            public string Equipment;
-            public Dictionary<string, float> CombatStats;
-            public Dictionary<string, float> HealthStats;
-        }
-
-        private Dictionary<string, PawnData> pawnDataCache = new Dictionary<string, PawnData>();
-
-        private void CollectPawnData()
-        {
-            pawnDataCache.Clear();
-            foreach (Pawn pawn in map.mapPawns.AllPawns.Where(p => p.RaceProps.Humanlike))
+            pawnStatesCache.Clear();
+            foreach (Pawn pawn in Map.mapPawns.AllPawns.Where(p => p.RaceProps.Humanlike))
             {
-                var data = new PawnData
+                var data = new PawnState
                 {
                     Label = pawn.LabelShort,
                     Position = pawn.Position,
                     Apparel = pawn.apparel?.WornApparel?.Select(a => a.LabelShort).ToList() ?? new List<string>(),
                     Equipment = pawn.equipment?.Primary?.LabelShort ?? "",
                     CombatStats = new Dictionary<string, float>
-                    {
-                        { "MeleeHitChance", pawn.GetStatValue(StatDefOf.MeleeHitChance) },
-                        { "MeleeDodgeChance", pawn.GetStatValue(StatDefOf.MeleeDodgeChance) },
-                        { "MeleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
-                        { "ShootingAccuracy", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
-                        { "AimingDelay", pawn.GetStatValue(StatDefOf.AimingDelayFactor) },
-                        { "MoveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
-                    },
+                {
+                    { "MeleeHitChance", pawn.GetStatValue(StatDefOf.MeleeHitChance) },
+                    { "MeleeDodgeChance", pawn.GetStatValue(StatDefOf.MeleeDodgeChance) },
+                    { "MeleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
+                    { "ShootingAccuracy", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
+                    { "AimingDelay", pawn.GetStatValue(StatDefOf.AimingDelayFactor) },
+                    { "MoveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
+                },
                     HealthStats = new Dictionary<string, float>
-                    {
-                        { "PainShock", pawn.health.hediffSet.PainTotal },
-                        { "BloodLoss", pawn.health.hediffSet.BleedRateTotal }
-                    }
-                };
-                pawnDataCache[pawn.LabelShort] = data;
-            }
-        }
-
-
-        public override void MapComponentTick()
-        {
-
-            CollectPawnData();
-
-            if (Find.TickManager.TicksGame % 1000 == 0)
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("Collected pawn data:");
-
-                foreach (var pawnData in pawnDataCache)
                 {
-                    sb.AppendLine($"{pawnData.Key}:");
-                    sb.AppendLine($"  Position: {pawnData.Value.Position}");
-                    sb.AppendLine($"  Wearing: {string.Join(", ", pawnData.Value.Apparel)}");
-                    sb.AppendLine($"  Equipment: {pawnData.Value.Equipment}");
-
-                    sb.AppendLine($"  Combat Stats:");
-                    foreach (var stat in pawnData.Value.CombatStats)
-                    {
-                        sb.AppendLine($"    {stat.Key}: {stat.Value:F2}");
-                    }
-
-                    sb.AppendLine($"  Health Stats:");
-                    foreach (var stat in pawnData.Value.HealthStats)
-                    {
-                        sb.AppendLine($"    {stat.Key}: {stat.Value:F2}");
-                    }
+                    { "PainShock", pawn.health.hediffSet.PainTotal },
+                    { "BloodLoss", pawn.health.hediffSet.BleedRateTotal }
                 }
-                Log.Message(sb.ToString());
+                };
+
+                pawnStatesCache[pawn.LabelShort] = data;
             }
         }
-    }
 
-    public class MapInfoCollector : MapComponent
-    {
-        public MapInfoCollector(Map map) : base(map) { }
 
-        private class CellData
+
+        // Map-related methods
+        public static void CollectMapData()
         {
-            public string Terrain;
-            public string Building;
-            public List<string> Items;
-            public float PathCost;
-        }
-
-        private CellData[,] mapDataCache;
-
-        private void CollectMapData()
-        {
-            if (mapDataCache == null || mapDataCache.GetLength(0) != map.Size.x || mapDataCache.GetLength(1) != map.Size.z)
+            if (mapStateCache == null || mapStateCache.Width != Map.Size.x || mapStateCache.Height != Map.Size.z)
             {
-                mapDataCache = new CellData[map.Size.x, map.Size.z];
+                mapStateCache = new MapState(Map.Size.x, Map.Size.z);
             }
 
-            foreach (IntVec3 cell in map.AllCells)
+            foreach (IntVec3 cell in Map.AllCells)
             {
-                mapDataCache[cell.x, cell.z] = new CellData
+                mapStateCache[cell.x, cell.z] = new CellState
                 {
-                    Terrain = map.terrainGrid.TerrainAt(cell).defName,
-                    Building = map.edificeGrid[cell]?.def.defName ?? "",
-                    Items = map.thingGrid.ThingsListAt(cell)
+                    Terrain = Map.terrainGrid.TerrainAt(cell).defName,
+                    Building = Map.edificeGrid[cell]?.def.defName ?? "",
+                    Items = Map.thingGrid.ThingsListAt(cell)
                         .Where(t => t.def.category == ThingCategory.Item)
                         .Select(t => t.def.defName)
                         .ToList(),
-                    PathCost = map.pathing.For(TraverseMode.PassAllDestroyableThings).pathGrid.PerceivedPathCostAt(cell)
+                    PathCost = Map.pathing.For(TraverseMode.PassAllDestroyableThings).pathGrid.PerceivedPathCostAt(cell)
                 };
             }
         }
 
-        public override void MapComponentTick()
+        public static void LogPawnData()
         {
-            if (Find.TickManager.TicksGame % 1000 == 0)
-            {
-                CollectMapData();
-                LogMapData();
-            }
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string jsonString = JsonSerializer.Serialize(pawnStatesCache, options);
+            Log.Message($"Pawn Data JSON:\n{jsonString}");
         }
 
-        private void LogMapData()
+        public static void LogMapData()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Map Data Sample (10x10 area from origin):");
-            
+            var sampleData = new Dictionary<string, CellState>();
+
             int sampleSize = 10;
-            for (int z = 0; z < sampleSize && z < map.Size.z; z++)
+            for (int z = 0; z < sampleSize && z < Map.Size.z; z++)
             {
-                for (int x = 0; x < sampleSize && x < map.Size.x; x++)
+                for (int x = 0; x < sampleSize && x < Map.Size.x; x++)
                 {
-                    var cell = mapDataCache[x, z];
-                    sb.AppendLine($"Cell [{x},{z}]: Terrain={cell.Terrain}, Building={cell.Building}, Items={string.Join(",", cell.Items)}, PathCost={cell.PathCost}");
+                    sampleData[$"[{x},{z}]"] = mapStateCache[x, z];
                 }
             }
-            Log.Message(sb.ToString());
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string jsonString = JsonSerializer.Serialize(sampleData, options);
+            Log.Message($"Map Data Sample (10x10 area from origin):\n{jsonString}");
+        }
+
+        public static PawnStates GetPawnStates()
+        {
+            return pawnStatesCache;
+        }
+
+        public static CellState GetCellState(IntVec3 position)
+        {
+            if (mapStateCache == null ||
+                position.x < 0 || position.x >= Map.Size.x ||
+                position.z < 0 || position.z >= Map.Size.z)
+                return null;
+
+            return mapStateCache[position.x, position.z];
+        }
+
+        public static MapState GetMapState()
+        {
+            return mapStateCache;
         }
     }
 }

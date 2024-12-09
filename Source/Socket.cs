@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 
 using UnityEngine;
 using Verse;
@@ -13,24 +13,17 @@ using Verse.Noise;
 using Verse.Grammar;
 using RimWorld;
 using RimWorld.Planet;
+using Microsoft.SqlServer.Server;
 
 namespace CombatAgent
 {
-    public class SocketComp : MapComponent
+    public static class SocketClient
     {
-        private System.Net.Sockets.TcpClient client;
-        private System.IO.StreamWriter writer;
-        private System.IO.StreamReader reader;
+        private readonly static System.Net.Sockets.TcpClient client;
+        private readonly static System.IO.StreamWriter writer;
+        private readonly static System.IO.StreamReader reader;
 
-        [Serializable]
-        public class GameState
-        {
-            public int Pawns;
-            public int Timestamp;
-        }
-
-
-        public SocketComp(Map map) : base(map)
+        static SocketClient()
         {
             try
             {
@@ -45,56 +38,56 @@ namespace CombatAgent
             }
         }
 
-        public override void FinalizeInit()
+        public class DataPak
         {
-            SendGameState();
+            public string Type { get; set; }
+            public object Data { get; set; }
         }
 
-        public void SendGameState()
+        private static void SendData(DataPak data)
         {
             try
             {
-                // Collect game state
-
-                var gameState = new GameState();
-                gameState.Pawns = map.mapPawns.AllPawns.Count();
-                gameState.Timestamp = Find.TickManager.TicksGame;
-
                 // Convert to JSON and send
-                string jsonState = JsonUtility.ToJson(gameState);
-                Log.Message($"Sending game state: {jsonState}");
-                writer.WriteLine(jsonState);
+                string jsonData = JsonSerializer.Serialize(data);
+                writer.WriteLine(jsonData);
                 writer.Flush();
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to send game state: {e.Message}");
+                Log.Error($"Failed to send data: {e.Message}");
             }
         }
 
-        public override void MapComponentTick()
+        public static void SendGameState(GameState gameState)
         {
-            if (Find.TickManager.TicksGame % 60 == 0) // Update every second
+            var data = new DataPak
             {
-                SendGameState();
-            }
+                Type = "gameState",
+                Data = gameState
+            };
+            SendData(data);
         }
 
-        public override void MapComponentOnGUI()
+        public static void SendMessage(string message)
         {
-            // Check for incoming messages from Python
-            if (client.Available > 0)
+            var data = new DataPak
             {
-                try
-                {
-                    string message = reader.ReadLine();
-                    // Handle incoming message here
-                    Messages.Message("Received message from agent", null, MessageTypeDefOf.PositiveEvent);
-                }
-                catch (Exception e)
-                {
-                    Log.Error($"Failed to read message: {e.Message}");
-                }
+                Type = "log",
+                Data = message
+            };
+            SendData(data);
+        }
+
+        public static void ReceiveMessage()
+        {
+            try
+            {
+                string message = reader.ReadLine();
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to read message: {e.Message}");
             }
         }
     }
