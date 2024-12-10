@@ -2,11 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Rimworld Mod Project (Linux)",
+            "name": "Debug (Linux)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build dll linux",
-            "args": ["-quicktest"],
+            "args": [
+                "-quicktest",
+            ],
             "program": "../../RimWorldLinux",
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
@@ -14,11 +16,45 @@
             "stopAtEntry": true
         },
         {
-            "name": "Rimworld Mod Project (Win64)",
+            "name": "Debug (Linux, Headless)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build dll linux",
+            "args": [
+                "-quicktest",
+                "-batchmode",
+                "-nographics"
+            ],
+            "program": "../../RimWorldLinux",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "internalConsoleOptions": "neverOpen",
+            "stopAtEntry": true
+        },
+        {
+            "name": "Debug (Win64)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build dll windows",
-            "args": ["-quicktest"],
+            "args": [
+                "-quicktest"
+            ],
+            "program": "..\\..\\RimWorldWin64.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "internalConsoleOptions": "neverOpen",
+            "stopAtEntry": true
+        },
+        {
+            "name": "Debug (Win64, Headless)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build dll windows",
+            "args": [
+                "-quicktest",
+                "-batchmode",
+                "-nographics"
+            ],
             "program": "..\\..\\RimWorldWin64.exe",
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",

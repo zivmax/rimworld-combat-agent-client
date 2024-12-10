@@ -26,4 +26,8 @@
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="System.Text.Json" Version="8.0.0" />
+	</ItemGroup>
 </Project>
