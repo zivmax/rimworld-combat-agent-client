@@ -99,7 +99,7 @@ namespace CombatAgent
             return map;
         }
 
-        public static void TeleportColonistsToMap(Map targetMap)
+        public static void GenColonistsOnMap(Map targetMap)
         {
             // Delete pet animals
             var pets = PawnsFinder.AllMapsCaravansAndTravelingTransportPods_Alive.Where(p => p.RaceProps.Animal && p.Faction == Faction.OfPlayer).ToList();
@@ -121,8 +121,8 @@ namespace CombatAgent
                 }
             }
 
-            // Generate 2 new colonists
-            for (int i = 0; i < 2; i++)
+            // Generate new colonists
+            for (int i = 0; i < 3; i++)
             {
                 Pawn newColonist = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
                 IntVec3 position = new IntVec3(0, 0, 0);

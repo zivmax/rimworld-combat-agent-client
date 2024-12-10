@@ -39,7 +39,7 @@ namespace CombatAgent
         public override void StartedNewGame()
         {
             Map pocketMap = MapGen.CreatePocketMap();
-            MapGen.TeleportColonistsToMap(pocketMap);
+            MapGen.GenColonistsOnMap(pocketMap);
             CleanUp.Clean();
         }   
     }
