@@ -129,7 +129,18 @@ namespace CombatAgent
                 GenSpawn.Spawn(newColonist, position, targetMap);
                 Log.Message($"Generated new colonist {newColonist.Name} on new map at origin");
                 Current.Game.CurrentMap = targetMap;
-                Find.CameraDriver.JumpToCurrentMapLoc(targetMap.Center);
+            }
+
+            Find.CameraDriver.JumpToCurrentMapLoc(targetMap.Center);
+
+            // Find the old map's parent and abandon it
+            var oldMaps = Find.Maps.Where(m => m != targetMap).ToList();
+            foreach (var oldMap in oldMaps)
+            {
+                if (oldMap.Parent is Settlement settlement)
+                {
+                    settlement.Abandon();
+                }
             }
         }
     }
