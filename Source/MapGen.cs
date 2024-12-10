@@ -9,7 +9,7 @@ namespace CombatAgent
 {
     public static class MapGen
     {
-        public static Map CreatePocketMap()
+        public static void CreatePocketMap()
         {
             IntVec3 mapSize = new IntVec3(30, 1, 30);
             MapParent mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
@@ -96,52 +96,7 @@ namespace CombatAgent
                 }
             }
 
-            return map;
-        }
-
-        public static void GenColonistsOnMap(Map targetMap)
-        {
-            // Delete pet animals
-            var pets = PawnsFinder.AllMapsCaravansAndTravelingTransportPods_Alive.Where(p => p.RaceProps.Animal && p.Faction == Faction.OfPlayer).ToList();
-            foreach (Pawn pet in pets)
-            {
-                if (pet.Spawned)
-                {
-                    pet.Destroy();
-                }
-            }
-
-            // Delete original colonists
-            var colonists = PawnsFinder.AllMapsCaravansAndTravelingTransportPods_Alive_Colonists.ToList();
-            foreach (Pawn colonist in colonists)
-            {
-                if (colonist.Spawned)
-                {
-                    colonist.Destroy();
-                }
-            }
-
-            // Generate new colonists
-            for (int i = 0; i < 3; i++)
-            {
-                Pawn newColonist = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
-                IntVec3 position = new IntVec3(0, 0, 0);
-                GenSpawn.Spawn(newColonist, position, targetMap);
-                Log.Message($"Generated new colonist {newColonist.Name} on new map at origin");
-                Current.Game.CurrentMap = targetMap;
-            }
-
-            Find.CameraDriver.JumpToCurrentMapLoc(targetMap.Center);
-
-            // Find the old map's parent and abandon it
-            var oldMaps = Find.Maps.Where(m => m != targetMap).ToList();
-            foreach (var oldMap in oldMaps)
-            {
-                if (oldMap.Parent is Settlement settlement)
-                {
-                    settlement.Abandon();
-                }
-            }
+            Current.Game.CurrentMap = map;
         }
     }
 }

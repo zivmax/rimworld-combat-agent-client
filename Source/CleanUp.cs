@@ -21,6 +21,25 @@ namespace CombatAgent
     {
         public static void Clean()
         {
+            // Delete original pawns
+            var colonists = PawnsFinder.AllMaps.ToList();
+            foreach (Pawn colonist in colonists)
+            {
+                if (colonist.Spawned)
+                {
+                    colonist.Destroy();
+                }
+            }
+
+            var oldMaps = Find.Maps.ToList();
+            foreach (var oldMap in oldMaps)
+            {
+                if (oldMap.Parent is Settlement settlement)
+                {
+                    settlement.Abandon();
+                }
+            }
+
             List<Settlement> settlements = Find.WorldObjects.Settlements.ToList();
             foreach (Settlement settlement in settlements)
             {

@@ -38,9 +38,10 @@ namespace CombatAgent
         }
         public override void StartedNewGame()
         {
-            Map pocketMap = MapGen.CreatePocketMap();
-            MapGen.GenColonistsOnMap(pocketMap);
             CleanUp.Clean();
-        }   
+            MapGen.CreatePocketMap();
+            PawnsGen.GenPawns();
+            CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));
+        }
     }
 }
