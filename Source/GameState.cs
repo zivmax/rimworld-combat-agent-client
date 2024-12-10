@@ -31,7 +31,7 @@ namespace CombatAgent
     public class PawnState
     {
         public string Label { get; set; }
-        public Tuple<int, int> Position { get; set; }
+        public Dictionary<string, int> Position { get; set; }
         public string Equipment { get; set; }
         public Dictionary<string, float> CombatStats { get; set; }
         public Dictionary<string, float> HealthStats { get; set; }

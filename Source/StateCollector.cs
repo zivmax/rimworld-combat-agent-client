@@ -35,22 +35,25 @@ namespace CombatAgent
                 var data = new PawnState
                 {
                     Label = pawn.LabelShort,
-                    Position = new Tuple<int, int>(pawn.Position.x, pawn.Position.z),
+                    Position = new Dictionary<string, int>
+                    {
+                        { "x", pawn.Position.x },
+                        { "y", pawn.Position.z }
+                    },
                     Equipment = pawn.equipment?.Primary?.LabelShort ?? "",
                     CombatStats = new Dictionary<string, float>
-                {
-                    { "MeleeHitChance", pawn.GetStatValue(StatDefOf.MeleeHitChance) },
-                    { "MeleeDodgeChance", pawn.GetStatValue(StatDefOf.MeleeDodgeChance) },
-                    { "MeleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
-                    { "ShootingAccuracy", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
-                    { "AimingDelay", pawn.GetStatValue(StatDefOf.AimingDelayFactor) },
-                    { "MoveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
-                },
+                    {
+                        { "meleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
+                        { "shootingAccuracy", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
+                        { "moveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
+                    },
                     HealthStats = new Dictionary<string, float>
-                {
-                    { "PainShock", pawn.health.hediffSet.PainTotal },
-                    { "BloodLoss", pawn.health.hediffSet.BleedRateTotal }
-                }
+                    {
+                        { "painShock", pawn.health.hediffSet.PainTotal },
+                        { "bloodLoss", pawn.health.hediffSet.BleedRateTotal },
+                        { "isDowned", pawn.Downed ? 1 : 0 },
+                        { "isDead", pawn.Dead ? 1 : 0 }
+                    }
                 };
 
                 pawnStatesCache[pawn.LabelShort] = data;
