@@ -23,16 +23,15 @@ namespace CombatAgent
         {
             if (Find.TickManager.TicksGame % 500 == 0)
             {
-                StateCollector.CollectPawnData();
-                StateCollector.CollectMapData();
+                StateCollector.CollectPawnState();
+                StateCollector.CollectMapState();
                 var state = new GameState
                 {
                     Map = StateCollector.GetMapState(),
                     Pawns = StateCollector.GetPawnStates(),
                     Tick = Find.TickManager.TicksGame
                 };
-                StateCollector.LogMapData();
-                StateCollector.LogPawnData();
+                StateCollector.LogCellState(IntVec3.Zero);
                 SocketClient.SendGameState(state);
             }
         }

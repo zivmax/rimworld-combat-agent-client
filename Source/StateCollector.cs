@@ -27,7 +27,7 @@ namespace CombatAgent
         private static MapState mapStateCache = new MapState(0, 0);
 
         // Pawn-related methods
-        public static void CollectPawnData()
+        public static void CollectPawnState()
         {
             pawnStatesCache.Clear();
             foreach (Pawn pawn in Map.mapPawns.AllPawns.Where(p => p.RaceProps.Humanlike))
@@ -63,7 +63,7 @@ namespace CombatAgent
 
 
         // Map-related methods
-        public static void CollectMapData()
+        public static void CollectMapState()
         {
             if (mapStateCache == null || mapStateCache.Width != Map.Size.x || mapStateCache.Height != Map.Size.z)
             {
@@ -80,18 +80,32 @@ namespace CombatAgent
             }
         }
 
-        public static void LogPawnData()
+        public static void LogPawnState()
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
             string jsonString = JsonSerializer.Serialize(pawnStatesCache, options);
             Log.Message($"Pawn Data JSON:\n{jsonString}");
         }
 
-        public static void LogMapData()
+        public static void LogMapState()
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
             string jsonString = JsonSerializer.Serialize(mapStateCache, options);
             Log.Message($"Map Data JSON:\n{jsonString}");
+        }
+
+        public static void LogCellState(IntVec3 position)
+        {
+            var cellState = GetCellState(position);
+            if (cellState == null)
+            {
+                Log.Error($"Cell at position {position} is out of bounds");
+                return;
+            }
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string jsonString = JsonSerializer.Serialize(cellState, options);
+            Log.Message($"Cell Data JSON:\n{jsonString}");
         }
 
         public static PawnStates GetPawnStates()
