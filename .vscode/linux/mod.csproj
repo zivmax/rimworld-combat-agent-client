@@ -22,12 +22,12 @@
 		<Compile Include="../../Source/*" />
 
 		<!-- Rimworld -->
-		<Reference Include="../../../../RimWorldLinux_Data/Managed/*.dll" Exclude="../../../../RimWorldLinux_Data/Managed/System*.dll;../../../../RimWorldLinux_Data/Managed/mscorlib.dll">
+		<Reference Include="../../../../RimWorldLinux_Data/Managed/*.dll" Exclude="../../../../RimWorldLinux_Data/Managed/System*.dll;../../../../RimWorldLinux_Data/Managed/mscorlib.dll;../../../../RimWorldLinux_Data/Managed/Microsoft.Bcl.AsyncInterfaces.dll">
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="System.Text.Json" Version="8.0.0" />
+	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
 	</ItemGroup>
 </Project>

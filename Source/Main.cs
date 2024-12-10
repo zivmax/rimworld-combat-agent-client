@@ -21,7 +21,7 @@ namespace CombatAgent
         public CombatAgentMain(Game game) { }
         public override void GameComponentTick()
         {
-            if (Find.TickManager.TicksGame % 60 == 0)
+            if (Find.TickManager.TicksGame % 1000 == 0)
             {
                 StateCollector.CollectPawnData();
                 StateCollector.CollectMapData();
@@ -33,6 +33,7 @@ namespace CombatAgent
                 };
                 StateCollector.LogMapData();
                 StateCollector.LogPawnData();
+                SocketClient.SendGameState(state);
             }
         }
     }

@@ -31,60 +31,33 @@ namespace CombatAgent
     public class PawnState
     {
         public string Label { get; set; }
-        public IntVec3 Position { get; set; }
-        public List<string> Apparel { get; set; }
+        public Tuple<int, int> Position { get; set; }
         public string Equipment { get; set; }
         public Dictionary<string, float> CombatStats { get; set; }
         public Dictionary<string, float> HealthStats { get; set; }
-
-        public PawnState()
-        {
-            Apparel = new List<string>();
-            CombatStats = new Dictionary<string, float>();
-            HealthStats = new Dictionary<string, float>();
-        }
     }
 
-    public class PawnStates
-    {
-        private readonly Dictionary<string, PawnState> pawnState = new Dictionary<string, PawnState>();
 
-        public void Clear() => pawnState.Clear();
-        public void Add(string key, PawnState value) => pawnState[key] = value;
-        public bool TryGetValue(string key, out PawnState value) => pawnState.TryGetValue(key, out value);
-        public Dictionary<string, PawnState> GetAll() => pawnState;
+    public class PawnStates : Dictionary<string, PawnState> { }
 
-        public PawnState this[string key]
-        {
-            get
-            {
-                if (pawnState.TryGetValue(key, out var value))
-                    return value;
-                return null;
-            }
-            set
-            {
-                pawnState[key] = value;
-            }
-        }
-    }
 
     public class CellState
     {
         public string Terrain { get; set; }
         public string Building { get; set; }
-        public List<string> Items { get; set; }
         public float PathCost { get; set; }
 
         public CellState()
         {
-            Items = new List<string>();
+            Terrain = "";
+            Building = "";
+            PathCost = 0;
         }
     }
 
     public class MapState
     {
-        private readonly CellState[,] cells;
+        public CellState[,] cells = null;
         public int Width { get; private set; }
         public int Height { get; private set; }
 

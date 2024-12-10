@@ -27,7 +27,7 @@ namespace CombatAgent
         {
             try
             {
-                client = new System.Net.Sockets.TcpClient("localhost", 5000);
+                client = new System.Net.Sockets.TcpClient("localhost", 10086);
                 var stream = client.GetStream();
                 writer = new System.IO.StreamWriter(stream);
                 reader = new System.IO.StreamReader(stream);
@@ -48,8 +48,12 @@ namespace CombatAgent
         {
             try
             {
+                var options = new JsonSerializerOptions
+                {
+                    Converters = { new Array2DConverter() },
+                };
                 // Convert to JSON and send
-                string jsonData = JsonSerializer.Serialize(data);
+                string jsonData = JsonSerializer.Serialize(data, options);
                 writer.WriteLine(jsonData);
                 writer.Flush();
             }

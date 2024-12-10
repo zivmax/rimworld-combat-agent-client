@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using UnityEngine;
 using Verse;
@@ -34,8 +35,7 @@ namespace CombatAgent
                 var data = new PawnState
                 {
                     Label = pawn.LabelShort,
-                    Position = pawn.Position,
-                    Apparel = pawn.apparel?.WornApparel?.Select(a => a.LabelShort).ToList() ?? new List<string>(),
+                    Position = new Tuple<int, int>(pawn.Position.x, pawn.Position.z),
                     Equipment = pawn.equipment?.Primary?.LabelShort ?? "",
                     CombatStats = new Dictionary<string, float>
                 {
@@ -73,10 +73,6 @@ namespace CombatAgent
                 {
                     Terrain = Map.terrainGrid.TerrainAt(cell).defName,
                     Building = Map.edificeGrid[cell]?.def.defName ?? "",
-                    Items = Map.thingGrid.ThingsListAt(cell)
-                        .Where(t => t.def.category == ThingCategory.Item)
-                        .Select(t => t.def.defName)
-                        .ToList(),
                     PathCost = Map.pathing.For(TraverseMode.PassAllDestroyableThings).pathGrid.PerceivedPathCostAt(cell)
                 };
             }
@@ -84,7 +80,10 @@ namespace CombatAgent
 
         public static void LogPawnData()
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+            };
             string jsonString = JsonSerializer.Serialize(pawnStatesCache, options);
             Log.Message($"Pawn Data JSON:\n{jsonString}");
         }
