@@ -38,9 +38,9 @@ namespace CombatAgent
         }
         public override void StartedNewGame()
         {
-            var mapGenerator = new MapGen();
-            Map pocketMap = mapGenerator.CreatePocketMap();
-            mapGenerator.TeleportColonistsToMap(pocketMap);
-        }
+            Map pocketMap = MapGen.CreatePocketMap();
+            MapGen.TeleportColonistsToMap(pocketMap);
+            CleanUp.Clean();
+        }   
     }
 }

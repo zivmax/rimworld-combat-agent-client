@@ -7,9 +7,9 @@ using RimWorld.Planet;
 
 namespace CombatAgent
 {
-    public class MapGen
+    public static class MapGen
     {
-        public Map CreatePocketMap()
+        public static Map CreatePocketMap()
         {
             IntVec3 mapSize = new IntVec3(30, 1, 30);
             MapParent mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
@@ -99,7 +99,7 @@ namespace CombatAgent
             return map;
         }
 
-        public void TeleportColonistsToMap(Map targetMap)
+        public static void TeleportColonistsToMap(Map targetMap)
         {
             // Delete pet animals
             var pets = PawnsFinder.AllMapsCaravansAndTravelingTransportPods_Alive.Where(p => p.RaceProps.Animal && p.Faction == Faction.OfPlayer).ToList();
