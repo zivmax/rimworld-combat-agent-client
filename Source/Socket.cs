@@ -48,12 +48,8 @@ namespace CombatAgent
         {
             try
             {
-                var options = new JsonSerializerOptions
-                {
-                    Converters = { new Array2DConverter() },
-                };
                 // Convert to JSON and send
-                string jsonData = JsonSerializer.Serialize(data, options);
+                string jsonData = JsonSerializer.Serialize(data);
                 writer.WriteLine(jsonData);
                 writer.Flush();
             }
