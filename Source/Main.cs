@@ -35,6 +35,7 @@ namespace CombatAgent
         }
         public override void StartedNewGame()
         {
+            DebugViewSettings.neverForceNormalSpeed = true;
             CleanUp.Clean();
             MapGen.CreatePocketMap();
             PawnsGen.GenPawns();
