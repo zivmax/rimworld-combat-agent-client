@@ -20,8 +20,6 @@ namespace CombatAgent
                 Pawn newAlly = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
                 newAlly.equipment.DestroyAllEquipment();
                 IntVec3 position = new IntVec3(0, 0, 0);
-                GenSpawn.Spawn(newAlly, position, map);
-                PostPawnSpawn(newAlly);
                 newAlly.story.Childhood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "ColonyChild59");
                 newAlly.story.Adulthood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "Colonist97");
                 for (int num = newAlly.story.traits.allTraits.Count - 1; num >= 0; num--)
@@ -30,6 +28,8 @@ namespace CombatAgent
                 }
                 newAlly.skills.GetSkill(SkillDefOf.Shooting).Level = 5;
                 newAlly.skills.GetSkill(SkillDefOf.Melee).Level = 5;
+                GenSpawn.Spawn(newAlly, position, map);
+                PostPawnSpawn(newAlly);
                 Log.Message($"Generated new ally {newAlly.Name} on new map at origin");
             }
 
@@ -37,11 +37,10 @@ namespace CombatAgent
             // Generate Enemy
             for (int i = 0; i < 3; i++)
             {
-                Pawn newEnemy = PawnGenerator.GeneratePawn(PawnKindDefOf.Pirate, Faction.OfPirates);
+                Faction faction = FactionUtility.DefaultFactionFrom(PawnKindDefOf.Pirate.defaultFactionType);
+                Pawn newEnemy = PawnGenerator.GeneratePawn(PawnKindDefOf.Pirate, faction);
                 newEnemy.equipment.DestroyAllEquipment();
                 IntVec3 position = new IntVec3(map.Size.x - 1, 0, map.Size.z - 1);
-                GenSpawn.Spawn(newEnemy, position, map);
-                PostPawnSpawn(newEnemy);
                 newEnemy.story.Childhood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "ColonyChild59");
                 newEnemy.story.Adulthood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "Colonist97");
                 for (int num = newEnemy.story.traits.allTraits.Count - 1; num >= 0; num--)
@@ -50,6 +49,8 @@ namespace CombatAgent
                 }
                 newEnemy.skills.GetSkill(SkillDefOf.Shooting).Level = 5;
                 newEnemy.skills.GetSkill(SkillDefOf.Melee).Level = 5;
+                GenSpawn.Spawn(newEnemy, position, map);
+                PostPawnSpawn(newEnemy);
                 Log.Message($"Generated new enemy {newEnemy.Name} on new map at top right");
             }
 

@@ -16,8 +16,8 @@ namespace CombatAgent
             mapParent.Tile = TileFinder.RandomSettlementTileFor(Faction.OfPlayer);
             mapParent.SetFaction(Faction.OfPlayer);
             Find.WorldObjects.Add(mapParent);
-            Current.Game.Scenario = Current.Game.Scenario ?? ScenarioDefOf.Crashlanded.scenario;
-            Map map = MapGenerator.GenerateMap(mapSize, mapParent, MapGeneratorDefOf.Base_Player);
+            Current.Game.Scenario = Current.Game.Scenario ?? ScenarioDefOf.Tutorial.scenario;
+            Map map = MapGenerator.GenerateMap(mapSize, mapParent, MapGeneratorDefOf.Encounter);
 
             // Set all terrain to soil and clear everything
             foreach (IntVec3 cell in map.AllCells)
