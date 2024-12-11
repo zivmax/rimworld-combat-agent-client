@@ -28,7 +28,7 @@ namespace CombatAgent
     public class PawnState
     {
         public string Label { get; set; }
-        public Dictionary<string, int> Position { get; set; }
+        public Dictionary<string, int> Loc { get; set; }
         public string Equipment { get; set; }
         public Dictionary<string, float> CombatStats { get; set; }
         public Dictionary<string, float> HealthStats { get; set; }
@@ -40,7 +40,7 @@ namespace CombatAgent
 
 
     [Serializable]
-    public class CellState : Dictionary<string, string> { }
+    public class CellState : Dictionary<string, bool> { }
 
     [Serializable]
     public class MapState

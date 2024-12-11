@@ -35,7 +35,7 @@ namespace CombatAgent
                 var state = new PawnState
                 {
                     Label = pawn.LabelShort,
-                    Position = new Dictionary<string, int>
+                    Loc = new Dictionary<string, int>
                     {
                         { "x", pawn.Position.x },
                         { "y", pawn.Position.z }
@@ -72,10 +72,11 @@ namespace CombatAgent
 
             foreach (IntVec3 cell in Map.AllCells)
             {
-                mapStateCache.Cells[$"[{cell.x},{cell.z}]"] = new CellState
+                mapStateCache.Cells[$"({cell.x},{cell.z})"] = new CellState
                 {
-                    {"building",  Map.edificeGrid[cell]?.def.defName ?? ""},
-                    {"hasPawn", (Map.thingGrid.ThingAt<Pawn>(cell) != null).ToString()}
+                    {"isWall", cell.GetEdifice(Map)?.def.fillPercent >= 1f},
+                    {"isTree", cell.GetPlant(Map)?.def.plant?.IsTree ?? false},
+                    {"isPawn", cell.GetFirstPawn(Map) != null}
                 };
             }
         }
@@ -120,7 +121,7 @@ namespace CombatAgent
                 position.z < 0 || position.z >= Map.Size.z)
                 return null;
 
-            return mapStateCache.Cells[$"[{position.x},{position.z}]"];
+            return mapStateCache.Cells[$"({position.x},{position.z})"];
         }
 
         public static MapState GetMapState()
