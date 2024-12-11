@@ -22,14 +22,14 @@ namespace CombatAgent
         private static Map Map => Find.CurrentMap;
 
         // Caches
-        private static readonly PawnStates pawnStatesCache = new PawnStates();
+        public static readonly PawnStates pawnStatesCache = new PawnStates();
 
-        private static MapState mapStateCache = new MapState(0, 0);
+        public static MapState mapStateCache = new MapState(0, 0);
 
         // Pawn-related methods
         public static PawnStates CollectPawnStates()
         {
-            foreach (Pawn pawn in Find.CurrentMap.mapPawns.AllHumanlike)
+            foreach (Pawn pawn in Map.mapPawns.AllHumanlike)
             {
                 PawnState state;
                 if (pawn.DeadOrDowned)
@@ -84,6 +84,37 @@ namespace CombatAgent
                 }
                 pawnStatesCache[pawn.LabelShort] = state;
             }
+
+            foreach (Thing thing in Map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse))
+            {
+                if (thing is Corpse corpse && corpse.InnerPawn.RaceProps.Humanlike)
+                {
+                    var state = new PawnState
+                    {
+                        label = corpse.InnerPawn.LabelShort,
+                        loc = new Dictionary<string, int>
+                        {
+                            { "x", corpse.Position.x },
+                            { "y", corpse.Position.z }
+                        },
+                        equipment = "",
+                        combatStats = new Dictionary<string, float>
+                        {
+                            { "meleeDPS", 0 },
+                            { "shootingAccuracy", 0 },
+                            { "moveSpeed", 0 }
+                        },
+                        healthStats = new Dictionary<string, float>
+                        {
+                            { "painShock", 0 },
+                            { "bloodLoss", 0 },
+                        },
+                        isIncapable = true
+                    };
+                    pawnStatesCache[corpse.InnerPawn.LabelShort] = state;
+                }
+            }
+
             return pawnStatesCache;
         }
 

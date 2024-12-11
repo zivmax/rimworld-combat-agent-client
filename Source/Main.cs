@@ -22,7 +22,7 @@ namespace CombatAgent
         public CombatAgentMain(Game game) { }
         public override void GameComponentTick()
         {
-            if (Find.TickManager.TicksGame % 500 == 0)
+            if (Find.TickManager.TicksGame % 60 == 0)
             {
                 var state = new GameState
                 {
