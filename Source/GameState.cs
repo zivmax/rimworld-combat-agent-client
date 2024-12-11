@@ -27,11 +27,12 @@ namespace CombatAgent
     [Serializable]
     public class PawnState
     {
-        public string Label { get; set; }
-        public Dictionary<string, int> Loc { get; set; }
-        public string Equipment { get; set; }
-        public Dictionary<string, float> CombatStats { get; set; }
-        public Dictionary<string, float> HealthStats { get; set; }
+        public string label { get; set; }
+        public Dictionary<string, int> loc { get; set; }
+        public string equipment { get; set; }
+        public Dictionary<string, float> combatStats { get; set; }
+        public Dictionary<string, float> healthStats { get; set; }
+        public bool isIncapable { get; set; }
     }
 
 

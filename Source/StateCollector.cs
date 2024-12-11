@@ -27,43 +27,70 @@ namespace CombatAgent
         private static MapState mapStateCache = new MapState(0, 0);
 
         // Pawn-related methods
-        public static void CollectPawnState()
+        public static PawnStates CollectPawnStates()
         {
-            pawnStatesCache.Clear();
-            foreach (Pawn pawn in Map.mapPawns.AllPawns.Where(p => p.RaceProps.Humanlike))
+            foreach (Pawn pawn in Find.CurrentMap.mapPawns.AllHumanlike)
             {
-                var state = new PawnState
+                PawnState state;
+                if (pawn.DeadOrDowned)
                 {
-                    Label = pawn.LabelShort,
-                    Loc = new Dictionary<string, int>
+                    state = new PawnState
+                    {
+                        label = pawn.LabelShort,
+                        loc = new Dictionary<string, int>
+                        {
+                            { "x", pawn.Position.x },
+                            { "y", pawn.Position.z }
+                        },
+                        equipment = "",
+                        combatStats = new Dictionary<string, float>
+                        {
+                            { "meleeDPS", 0 },
+                            { "shootingAccuracy", 0 },
+                            { "moveSpeed", 0 }
+                        },
+                        healthStats = new Dictionary<string, float>
+                        {
+                            { "painShock", 0 },
+                            { "bloodLoss", 0 },
+                        },
+                        isIncapable = true
+                    };
+                }
+                else
+                {
+                    state = new PawnState
+                    {
+                        label = pawn.LabelShort,
+                        loc = new Dictionary<string, int>
                     {
                         { "x", pawn.Position.x },
                         { "y", pawn.Position.z }
                     },
-                    Equipment = pawn.equipment?.Primary?.LabelShort ?? "",
-                    CombatStats = new Dictionary<string, float>
+                        equipment = pawn.equipment?.Primary?.LabelShort ?? "",
+                        combatStats = new Dictionary<string, float>
                     {
                         { "meleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
                         { "shootingAccuracy", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
                         { "moveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
                     },
-                    HealthStats = new Dictionary<string, float>
+                        healthStats = new Dictionary<string, float>
                     {
                         { "painShock", pawn.health.hediffSet.PainTotal },
                         { "bloodLoss", pawn.health.hediffSet.BleedRateTotal },
-                        { "isDowned", pawn.Downed ? 1 : 0 },
-                        { "isDead", pawn.Dead ? 1 : 0 }
-                    }
-                };
-
+                    },
+                        isIncapable = false
+                    };
+                }
                 pawnStatesCache[pawn.LabelShort] = state;
             }
+            return pawnStatesCache;
         }
 
 
 
         // Map-related methods
-        public static void CollectMapState()
+        public static MapState CollectMapState()
         {
             if (mapStateCache == null || mapStateCache.Width != Map.Size.x || mapStateCache.Height != Map.Size.z)
             {
@@ -79,6 +106,8 @@ namespace CombatAgent
                     {"isPawn", cell.GetFirstPawn(Map) != null}
                 };
             }
+
+            return mapStateCache;
         }
 
         public static void LogPawnState()
