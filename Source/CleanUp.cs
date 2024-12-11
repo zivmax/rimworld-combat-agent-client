@@ -22,13 +22,10 @@ namespace CombatAgent
         public static void Clean()
         {
             // Delete original pawns
-            var colonists = PawnsFinder.AllMaps.ToList();
-            foreach (Pawn colonist in colonists)
+            var pawns = Find.WorldPawns.AllPawnsAliveOrDead.ToList();
+            foreach (Pawn pawn in pawns)
             {
-                if (colonist.Spawned)
-                {
-                    colonist.Destroy();
-                }
+                pawn.Destroy();
             }
 
             var oldMaps = Find.Maps.ToList();
