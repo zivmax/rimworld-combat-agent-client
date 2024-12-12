@@ -19,20 +19,20 @@ namespace CombatAgent
     [Serializable]
     public class GameState
     {
-        public MapState Map { get; set; }
-        public PawnStates Pawns { get; set; }
+        public MapState MapState { get; set; }
+        public PawnStates PawnStates { get; set; }
         public int Tick { get; set; }
     }
 
     [Serializable]
     public class PawnState
     {
-        public string label { get; set; }
-        public Dictionary<string, int> loc { get; set; }
-        public string equipment { get; set; }
-        public Dictionary<string, float> combatStats { get; set; }
-        public Dictionary<string, float> healthStats { get; set; }
-        public bool isIncapable { get; set; }
+        public string Label { get; set; }
+        public Dictionary<string, int> Loc { get; set; }
+        public string Equipment { get; set; }
+        public Dictionary<string, float> CombatStats { get; set; }
+        public Dictionary<string, float> HealthStats { get; set; }
+        public bool IsIncapable { get; set; }
     }
 
 

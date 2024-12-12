@@ -19,17 +19,26 @@ namespace CombatAgent
 {
     public class CombatAgentMain : GameComponent
     {
-        public CombatAgentMain(Game game) { }
+        private readonly Game game;
+        public CombatAgentMain(Game game) { this.game = game; }
         public override void GameComponentTick()
         {
+            // Send game state to server every 60 ticks (1 second)
             if (Find.TickManager.TicksGame % 60 == 0)
             {
+                var mapState = StateCollector.CollectMapState();
+                var pawnStates = StateCollector.CollectPawnStates();
+                var tick = Find.TickManager.TicksGame;
+
+
+
                 var state = new GameState
                 {
-                    Map = StateCollector.CollectMapState(),
-                    Pawns = StateCollector.CollectPawnStates(),
-                    Tick = Find.TickManager.TicksGame
+                    MapState = mapState,
+                    PawnStates = pawnStates,
+                    Tick = tick,
                 };
+                
                 SocketClient.SendGameState(state);
             }
         }

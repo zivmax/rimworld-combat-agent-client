@@ -36,50 +36,50 @@ namespace CombatAgent
                 {
                     state = new PawnState
                     {
-                        label = pawn.LabelShort,
-                        loc = new Dictionary<string, int>
+                        Label = pawn.LabelShort,
+                        Loc = new Dictionary<string, int>
                         {
-                            { "x", pawn.Position.x },
-                            { "y", pawn.Position.z }
+                            { "X", pawn.Position.x },
+                            { "Y", pawn.Position.z }
                         },
-                        equipment = "",
-                        combatStats = new Dictionary<string, float>
+                        Equipment = "",
+                        CombatStats = new Dictionary<string, float>
                         {
-                            { "meleeDPS", 0 },
-                            { "shootingAccuracy", 0 },
-                            { "moveSpeed", 0 }
+                            { "MeleeDPS", 0 },
+                            { "ShootingACC", 0 },
+                            { "MoveSpeed", 0 }
                         },
-                        healthStats = new Dictionary<string, float>
+                        HealthStats = new Dictionary<string, float>
                         {
-                            { "painShock", 0 },
-                            { "bloodLoss", 0 },
+                            { "PainShock", 0 },
+                            { "BloodLoss", 0 },
                         },
-                        isIncapable = true
+                        IsIncapable = true
                     };
                 }
                 else
                 {
                     state = new PawnState
                     {
-                        label = pawn.LabelShort,
-                        loc = new Dictionary<string, int>
+                        Label = pawn.LabelShort,
+                        Loc = new Dictionary<string, int>
                     {
-                        { "x", pawn.Position.x },
-                        { "y", pawn.Position.z }
+                        { "X", pawn.Position.x },
+                        { "Y", pawn.Position.z }
                     },
-                        equipment = pawn.equipment?.Primary?.LabelShort ?? "",
-                        combatStats = new Dictionary<string, float>
+                        Equipment = pawn.equipment?.Primary?.LabelShort ?? "",
+                        CombatStats = new Dictionary<string, float>
                     {
-                        { "meleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
-                        { "shootingAccuracy", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
-                        { "moveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
+                        { "MeleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
+                        { "ShootingACC", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
+                        { "MoveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
                     },
-                        healthStats = new Dictionary<string, float>
+                        HealthStats = new Dictionary<string, float>
                     {
-                        { "painShock", pawn.health.hediffSet.PainTotal },
-                        { "bloodLoss", pawn.health.hediffSet.BleedRateTotal },
+                        { "PainShock", pawn.health.hediffSet.PainTotal },
+                        { "BloodLoss", pawn.health.hediffSet.BleedRateTotal },
                     },
-                        isIncapable = false
+                        IsIncapable = false
                     };
                 }
                 pawnStatesCache[pawn.LabelShort] = state;
@@ -91,25 +91,25 @@ namespace CombatAgent
                 {
                     var state = new PawnState
                     {
-                        label = corpse.InnerPawn.LabelShort,
-                        loc = new Dictionary<string, int>
+                        Label = corpse.InnerPawn.LabelShort,
+                        Loc = new Dictionary<string, int>
                         {
-                            { "x", corpse.Position.x },
-                            { "y", corpse.Position.z }
+                            { "X", corpse.Position.x },
+                            { "Y", corpse.Position.z }
                         },
-                        equipment = "",
-                        combatStats = new Dictionary<string, float>
+                        Equipment = "",
+                        CombatStats = new Dictionary<string, float>
                         {
-                            { "meleeDPS", 0 },
-                            { "shootingAccuracy", 0 },
-                            { "moveSpeed", 0 }
+                            { "MeleeDPS", 0 },
+                            { "ShootingACC", 0 },
+                            { "MoveSpeed", 0 }
                         },
-                        healthStats = new Dictionary<string, float>
+                        HealthStats = new Dictionary<string, float>
                         {
-                            { "painShock", 0 },
-                            { "bloodLoss", 0 },
+                            { "PainShock", 0 },
+                            { "BloodLoss", 0 },
                         },
-                        isIncapable = true
+                        IsIncapable = true
                     };
                     pawnStatesCache[corpse.InnerPawn.LabelShort] = state;
                 }
@@ -132,9 +132,9 @@ namespace CombatAgent
             {
                 mapStateCache.Cells[$"({cell.x},{cell.z})"] = new CellState
                 {
-                    {"isWall", cell.GetEdifice(Map)?.def.fillPercent >= 1f},
-                    {"isTree", cell.GetPlant(Map)?.def.plant?.IsTree ?? false},
-                    {"isPawn", cell.GetFirstPawn(Map) != null}
+                    {"IsWall", cell.GetEdifice(Map)?.def.fillPercent >= 1f},
+                    {"IsTree", cell.GetPlant(Map)?.def.plant?.IsTree ?? false},
+                    {"IsPawn", cell.GetFirstPawn(Map) != null}
                 };
             }
 
