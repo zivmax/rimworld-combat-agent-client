@@ -19,9 +19,9 @@ namespace CombatAgent
 {
     public static class SocketClient
     {
-        private readonly static System.Net.Sockets.TcpClient client;
-        private readonly static System.IO.StreamWriter writer;
-        private readonly static System.IO.StreamReader reader;
+        private static System.Net.Sockets.TcpClient client;
+        private static System.IO.StreamWriter writer;
+        private static System.IO.StreamReader reader;
 
         static SocketClient()
         {
@@ -38,12 +38,28 @@ namespace CombatAgent
             }
         }
 
-        public class DataPak
+        private static void Reconnect()
+        {
+            try
+            {
+                client?.Close();
+                client = new System.Net.Sockets.TcpClient("localhost", 10086);
+                var stream = client.GetStream();
+                writer = new System.IO.StreamWriter(stream);
+                reader = new System.IO.StreamReader(stream);
+                Log.Message("Successfully reconnected to socket server");
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to reconnect: {e.Message}");
+            }
+        }
+
+        private class DataPak
         {
             public string Type { get; set; }
             public object Data { get; set; }
         }
-
         private static void SendData(DataPak data)
         {
             try
@@ -56,9 +72,9 @@ namespace CombatAgent
             catch (Exception e)
             {
                 Log.Error($"Failed to send data: {e.Message}");
+                Reconnect();
             }
         }
-
         public static void SendGameState(GameState gameState)
         {
             var data = new DataPak
@@ -89,6 +105,7 @@ namespace CombatAgent
             catch (Exception e)
             {
                 Log.Error($"Failed to read message: {e.Message}");
+                Reconnect();
             }
         }
     }
