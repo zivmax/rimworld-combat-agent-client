@@ -35,7 +35,7 @@ namespace CombatAgent
         {
             foreach (PawnAction pawnAction in action.PawnActions.Values)
             {
-                Pawn pawn = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShort == pawnAction.Lable);
+                Pawn pawn = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShort == pawnAction.Label);
                 if (pawn != null)
                 {
                     IntVec3 cell = new IntVec3(pawnAction.X, 0, pawnAction.Y);
@@ -43,6 +43,10 @@ namespace CombatAgent
                     {
                         pawn.jobs.StartJob(new Job(JobDefOf.Goto, cell), JobCondition.InterruptForced);
                     }
+                }
+                else
+                {
+                    Log.Warning($"Pawn with label {pawnAction.Label} not found");
                 }
             }
         }

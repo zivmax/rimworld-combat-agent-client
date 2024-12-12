@@ -81,7 +81,16 @@ namespace CombatAgent
         {
             try
             {
+                if (client == null || !client.Connected || reader == null)
+                {
+                    Reconnect();
+                    return null;
+                }
                 string message = reader.ReadLine();
+                if (string.IsNullOrEmpty(message))
+                {
+                    return null;
+                }
                 return JsonSerializer.Deserialize<DataPak>(message);
             }
             catch (Exception e)
@@ -118,7 +127,7 @@ namespace CombatAgent
             try
             {
                 data = ReceiveData();
-                if (data == null)
+                if (data == null || string.IsNullOrEmpty(data.Type))
                 {
                     return null;
                 }
@@ -132,7 +141,7 @@ namespace CombatAgent
 
             if (data.Type == "GameAction")
             {
-                return (GameAction)data.Data;
+                return JsonSerializer.Deserialize<GameAction>(data.Data.ToString());
             }
             else
             {
@@ -146,7 +155,6 @@ namespace CombatAgent
             try
             {
                 string message = reader.ReadLine();
-                Log.Message($"Received message: {message}");
             }
             catch (Exception e)
             {

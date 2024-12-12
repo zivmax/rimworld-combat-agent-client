@@ -42,8 +42,6 @@ namespace CombatAgent
                     GameEnding = StateCollector.IsGameEnding()
                 };
 
-                StateCollector.LogPawnStates();
-
                 try
                 {
                     SocketClient.SendGameState(state);
@@ -55,18 +53,23 @@ namespace CombatAgent
                 }
 
                 GameAction action = null;
-                while (action != null)
+                while (action == null)
                 {
                     try
-                    { action = SocketClient.ReceiveAction(); }
+                    {
+                        action = SocketClient.ReceiveAction();
+                    }
                     catch (Exception e)
-                    { Log.Error($"Failed to receive action from server: {e}"); }
+                    {
+                        Log.Error($"Failed to receive action from server: {e}");
+                        break;
+                    }
                 }
 
                 PawnController.PerformAction(action);
 
                 // Resume the game
-                Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
+                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
             }
         }
 
@@ -78,7 +81,7 @@ namespace CombatAgent
             PawnsGen.GenPawns();
             CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));
             PawnController.DraftAllAllies();
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
+            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
         }
     }
 }
