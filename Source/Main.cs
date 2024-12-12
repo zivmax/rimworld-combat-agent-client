@@ -20,12 +20,20 @@ namespace CombatAgent
     public class CombatAgentMain : GameComponent
     {
         public CombatAgentMain(Game game) { }
+
+        private static int Second(int second)
+        {
+            // 60 ticks per second
+            return second * 60;
+        }
+
         public override void GameComponentTick()
         {
-            // Send game state to server every 60 ticks (1 second)
-            if (Find.TickManager.TicksGame % 240 == 0)
+            if (Find.TickManager.TicksGame % Second(5) == 0)
             {
                 // Pause the game
+                Find.TickManager.Pause();
+
                 var state = new GameState
                 {
                     MapState = StateCollector.CollectMapState(),
@@ -33,6 +41,8 @@ namespace CombatAgent
                     Tick = Find.TickManager.TicksGame,
                     GameEnding = StateCollector.IsGameEnding()
                 };
+
+                StateCollector.LogPawnStates();
 
                 try
                 {
@@ -43,16 +53,32 @@ namespace CombatAgent
                 {
                     Log.Error($"Failed to send game state to server: {ex.Message}");
                 }
+
+                GameAction action = null;
+                while (action != null)
+                {
+                    try
+                    { action = SocketClient.ReceiveAction(); }
+                    catch (Exception e)
+                    { Log.Error($"Failed to receive action from server: {e}"); }
+                }
+
+                PawnController.PerformAction(action);
+
+                // Resume the game
+                Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
             }
         }
+
         public override void StartedNewGame()
         {
             PrefInitializer.SetPrefs();
             CleanUp.Clean();
             MapGen.CreatePocketMap();
             PawnsGen.GenPawns();
-            CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));    
-            GameAction.DraftAllAllies();
+            CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));
+            PawnController.DraftAllAllies();
+            Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
         }
     }
 }

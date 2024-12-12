@@ -158,7 +158,7 @@ namespace CombatAgent
             }
         }
 
-        public static void LogPawnState()
+        public static void LogPawnStates()
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
             string jsonString = JsonSerializer.Serialize(pawnStatesCache, options);

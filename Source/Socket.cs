@@ -60,6 +60,7 @@ namespace CombatAgent
             public string Type { get; set; }
             public object Data { get; set; }
         }
+
         private static void SendData(DataPak data)
         {
             try
@@ -75,11 +76,27 @@ namespace CombatAgent
                 Reconnect();
             }
         }
+
+        private static DataPak ReceiveData()
+        {
+            try
+            {
+                string message = reader.ReadLine();
+                return JsonSerializer.Deserialize<DataPak>(message);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to receive action: {e.Message}");
+                Reconnect();
+                return null;
+            }
+        }
+
         public static void SendGameState(GameState gameState)
         {
             var data = new DataPak
             {
-                Type = "gameState",
+                Type = "GameState",
                 Data = gameState
             };
             SendData(data);
@@ -89,15 +106,39 @@ namespace CombatAgent
         {
             var data = new DataPak
             {
-                Type = "log",
+                Type = "Log",
                 Data = message
             };
             SendData(data);
         }
 
-        public static GameAction ReceiveResponse()
+        public static GameAction ReceiveAction()
         {
-            return null;
+            DataPak data;
+            try
+            {
+                data = ReceiveData();
+                if (data == null)
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to receive action: {e.Message}");
+                Reconnect();
+                return null;
+            }
+
+            if (data.Type == "GameAction")
+            {
+                return (GameAction)data.Data;
+            }
+            else
+            {
+                Log.Error($"Received invalid data type: {data.Type}");
+                return null;
+            }
         }
 
         public static void ReceiveMessage()
