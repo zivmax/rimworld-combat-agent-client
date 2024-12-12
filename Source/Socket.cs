@@ -84,6 +84,7 @@ namespace CombatAgent
             try
             {
                 string message = reader.ReadLine();
+                Log.Message($"Received message: {message}");
             }
             catch (Exception e)
             {

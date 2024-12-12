@@ -34,7 +34,15 @@ namespace CombatAgent
                     GameEnding = StateCollector.IsGameEnding()
                 };
                 
-                SocketClient.SendGameState(state);
+                try
+                {
+                    SocketClient.SendGameState(state);
+                    Log.Message("Sent game state to server");
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Failed to send game state to server: {ex.Message}");
+                }
             }
         }
         public override void StartedNewGame()
