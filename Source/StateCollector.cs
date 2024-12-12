@@ -37,6 +37,7 @@ namespace CombatAgent
                     state = new PawnState
                     {
                         Label = pawn.LabelShort,
+                        IsAlly = pawn.Faction == Faction.OfPlayer,
                         Loc = new Dictionary<string, int>
                         {
                             { "X", pawn.Position.x },
@@ -62,6 +63,7 @@ namespace CombatAgent
                     state = new PawnState
                     {
                         Label = pawn.LabelShort,
+                        IsAlly = pawn.Faction == Faction.OfPlayer,
                         Loc = new Dictionary<string, int>
                     {
                         { "X", pawn.Position.x },
@@ -92,6 +94,7 @@ namespace CombatAgent
                     var state = new PawnState
                     {
                         Label = corpse.InnerPawn.LabelShort,
+                        IsAlly = corpse.InnerPawn.Faction == Faction.OfPlayer,
                         Loc = new Dictionary<string, int>
                         {
                             { "X", corpse.Position.x },
@@ -139,6 +142,20 @@ namespace CombatAgent
             }
 
             return mapStateCache;
+        }
+
+        public static bool IsGameEnding(bool countBlackMan = false)
+        {
+            if (!countBlackMan)
+            {
+                // Wait till the man in black arrives
+                return pawnStatesCache.Count == 7 && pawnStatesCache.Values.All(pawn => pawn.IsIncapable && pawn.IsAlly);
+            }
+            else
+            {
+                // Check if every ally is incapable
+                return pawnStatesCache.Values.All(pawn => pawn.IsIncapable && pawn.IsAlly);
+            }
         }
 
         public static void LogPawnState()

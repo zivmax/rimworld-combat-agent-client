@@ -26,17 +26,12 @@ namespace CombatAgent
             // Send game state to server every 60 ticks (1 second)
             if (Find.TickManager.TicksGame % 60 == 0)
             {
-                var mapState = StateCollector.CollectMapState();
-                var pawnStates = StateCollector.CollectPawnStates();
-                var tick = Find.TickManager.TicksGame;
-
-
-
                 var state = new GameState
                 {
-                    MapState = mapState,
-                    PawnStates = pawnStates,
-                    Tick = tick,
+                    MapState = StateCollector.CollectMapState(),
+                    PawnStates = StateCollector.CollectPawnStates(),
+                    Tick = Find.TickManager.TicksGame,
+                    GameEnding = StateCollector.IsGameEnding()
                 };
                 
                 SocketClient.SendGameState(state);
