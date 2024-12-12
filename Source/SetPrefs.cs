@@ -25,7 +25,7 @@ namespace CombatAgent
             Prefs.AutomaticPauseMode = AutomaticPauseMode.Never;
             Prefs.PauseOnLoad = false;
             Prefs.FullScreen = false;
-            Prefs.UIScale = 1f;
+            Prefs.UIScale = 1.5f;
             Prefs.ScreenHeight = 1080;
             Prefs.ScreenWidth = 1920;
         }
