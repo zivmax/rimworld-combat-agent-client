@@ -95,6 +95,11 @@ namespace CombatAgent
             SendData(data);
         }
 
+        public static GameAction ReceiveResponse()
+        {
+            return null;
+        }
+
         public static void ReceiveMessage()
         {
             try
