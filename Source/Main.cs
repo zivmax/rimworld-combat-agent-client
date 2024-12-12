@@ -23,7 +23,7 @@ namespace CombatAgent
         public override void GameComponentTick()
         {
             // Send game state to server every 60 ticks (1 second)
-            if (Find.TickManager.TicksGame % 60 == 0)
+            if (Find.TickManager.TicksGame % 240 == 0)
             {
                 // Pause the game
                 var state = new GameState
@@ -51,7 +51,8 @@ namespace CombatAgent
             CleanUp.Clean();
             MapGen.CreatePocketMap();
             PawnsGen.GenPawns();
-            CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));
+            CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));    
+            GameAction.DraftAllAllies();
         }
     }
 }
