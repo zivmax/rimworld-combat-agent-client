@@ -17,7 +17,9 @@ namespace CombatAgent
             // Generate Ally
             for (int i = 0; i < 3; i++)
             {
-                Pawn newAlly = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
+                PawnKindDef pawnKind = PawnKindDefOf.Colonist;
+                pawnKind.race = ThingDefOf.Human;
+                Pawn newAlly = PawnGenerator.GeneratePawn(pawnKind, Faction.OfPlayer);
                 newAlly.equipment.DestroyAllEquipment();
                 IntVec3 position = new IntVec3(0, 0, 0);
                 newAlly.story.Childhood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "ColonyChild59");
@@ -33,10 +35,11 @@ namespace CombatAgent
                 Log.Message($"Generated new ally {newAlly.Name} on new map at origin");
             }
 
-
             // Generate Enemy
             for (int i = 0; i < 3; i++)
             {
+                PawnKindDef pawnKind = PawnKindDefOf.Pirate;
+                pawnKind.race = ThingDefOf.Human;
                 Faction faction = FactionUtility.DefaultFactionFrom(PawnKindDefOf.Pirate.defaultFactionType);
                 Pawn newEnemy = PawnGenerator.GeneratePawn(PawnKindDefOf.Pirate, faction);
                 newEnemy.equipment.DestroyAllEquipment();
