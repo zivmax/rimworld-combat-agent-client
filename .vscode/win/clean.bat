@@ -1,17 +1,7 @@
-echo off
+@echo off
 
-:: Remove unnecessary assemblies
-DEL .\*\Assemblies\*.*
+:: Remove unnecessary assemblies from mod folder
+del /S /Q "1.5\Assemblies\*.*"
 
-:: If the AddedHistory folder doesn't exist, exit
-if not exist "..\..\RimWorldWin64_Data\Managed\AddedHistory" (
-    exit
-)
-
-:: Clean the Managed\ according to the AddedHistory folder's contents
-for /r %%i in ("..\..\RimWorldWin64_Data\Managed\AddedHistory") do (
-    del "..\..\RimWorldWin64_Data\Managed\%%~nxi"
-)
-
-:: Clean the AddedHistory folder
-del "..\..\RimWorldWin64_Data\Managed\AddedHistory\*.*"
+:: Remove assemblies from game directory
+del /S /Q "..\..\RimWorldWin64_Data\Managed\AddedHistory\*.*"
