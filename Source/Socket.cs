@@ -4,16 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 
-using UnityEngine;
 using Verse;
-using Verse.AI;
-using Verse.AI.Group;
-using Verse.Sound;
-using Verse.Noise;
-using Verse.Grammar;
-using RimWorld;
-using RimWorld.Planet;
-using Microsoft.SqlServer.Server;
+
 
 namespace CombatAgent
 {
@@ -22,6 +14,7 @@ namespace CombatAgent
         private static System.Net.Sockets.TcpClient client;
         private static System.IO.StreamWriter writer;
         private static System.IO.StreamReader reader;
+        private static bool initialized = false;
 
         static SocketClient()
         {
@@ -35,6 +28,14 @@ namespace CombatAgent
             catch (Exception e)
             {
                 Log.Error($"Failed to initialize socket connection: {e.Message}");
+            }
+        }
+
+        public static void Initialize()
+        {
+            if (!initialized)
+            {
+                initialized = true;
             }
         }
 
@@ -55,6 +56,21 @@ namespace CombatAgent
             }
         }
 
+
+        private static bool IsConnected()
+        {
+            try
+            {
+                return client != null && client.Connected &&
+                       !(client.Client.Poll(1, System.Net.Sockets.SelectMode.SelectRead) &&
+                     client.Client.Available == 0);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private class DataPak
         {
             public string Type { get; set; }
@@ -65,6 +81,12 @@ namespace CombatAgent
         {
             try
             {
+                while (!IsConnected())
+                {
+                    Log.Warning("Socket not connected, attempting to reconnect...");
+                    Reconnect();
+                }
+
                 // Convert to JSON and send
                 string jsonData = JsonSerializer.Serialize(data);
                 writer.WriteLine(jsonData);
@@ -81,11 +103,16 @@ namespace CombatAgent
         {
             try
             {
-                if (client == null || !client.Connected || reader == null)
+                while (!IsConnected())
                 {
+                    Log.Warning("Socket not connected, attempting to reconnect...");
                     Reconnect();
-                    return null;
+                    if (!IsConnected())
+                    {
+                        return null;
+                    }
                 }
+
                 string message = reader.ReadLine();
                 if (string.IsNullOrEmpty(message))
                 {
@@ -95,11 +122,12 @@ namespace CombatAgent
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to receive action: {e.Message}");
+                Log.Error($"Failed to receive data: {e.Message}");
                 Reconnect();
                 return null;
             }
         }
+
 
         public static void SendGameState(GameState gameState)
         {
@@ -135,7 +163,6 @@ namespace CombatAgent
             catch (Exception e)
             {
                 Log.Error($"Failed to receive action: {e.Message}");
-                Reconnect();
                 return null;
             }
 
@@ -147,19 +174,6 @@ namespace CombatAgent
             {
                 Log.Error($"Received invalid data type: {data.Type}");
                 return null;
-            }
-        }
-
-        public static void ReceiveMessage()
-        {
-            try
-            {
-                string message = reader.ReadLine();
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Failed to read message: {e.Message}");
-                Reconnect();
             }
         }
     }
