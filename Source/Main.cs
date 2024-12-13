@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,6 +20,8 @@ namespace CombatAgent
     public class CombatAgentMain : GameComponent
     {
         public CombatAgentMain(Game game) { }
+
+        private Map trainMap;
 
         private static int Second(int second)
         {
@@ -84,13 +86,18 @@ namespace CombatAgent
             }
         }
 
-        public override void StartedNewGame()
+        public override void FinalizeInit()
         {
             PrefInitializer.SetPrefs();
+        }
+
+        public override void StartedNewGame()
+        {
             CleanUp.Clean();
-            MapGen.CreatePocketMap();
-            PawnsGen.GenPawns();
-            CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));
+            trainMap = MapGen.CreatePocketMap(); 
+            Current.Game.CurrentMap = trainMap;
+            PawnsGen.GenPawns(trainMap);
+            CameraJumper.TryJump(trainMap.Center, trainMap);
             PawnController.DraftAllAllies();
             PACycle();
         }

@@ -7,10 +7,8 @@ namespace CombatAgent
 {
     public static class PawnsGen
     {
-        public static void GenPawns()
+        public static void GenPawns(Map map)
         {
-            var map = Find.CurrentMap;
-
             // Generate Ally
             for (int i = 0; i < 3; i++)
             {
