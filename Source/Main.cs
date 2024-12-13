@@ -52,25 +52,36 @@ namespace CombatAgent
                     Log.Error($"Failed to send game state to server: {ex.Message}");
                 }
 
-                GameAction action = null;
-                while (action == null)
-                {
-                    try
-                    {
-                        action = SocketClient.ReceiveAction();
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error($"Failed to receive action from server: {e}");
-                        break;
-                    }
-                }
+            if (SocketClient.ReceiveReset())
+            {
+                Restart();
+                return;
+            }
+
+            GameAction action = SocketClient.ReceiveAction();
+            while (action == null)
+            {
+                SocketClient.SendGameState(state);
+                action = SocketClient.ReceiveAction();
+            }
 
                 PawnController.PerformAction(action);
 
-                // Resume the game
-                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            // Resume the game
+            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+        }
+
+        public override void GameComponentTick()
+        {
+            if (Find.TickManager.TicksGame % Second(5) == 0)
+            {
+                PACycle();
             }
+        }
+
+        public override void FinalizeInit()
+        {
+            PrefInitializer.SetPrefs();
         }
 
         public override void StartedNewGame()

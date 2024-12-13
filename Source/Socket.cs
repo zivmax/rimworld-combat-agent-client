@@ -19,6 +19,10 @@ namespace CombatAgent
 {
     public static class SocketClient
     {
+        private static int LastCheckTick = -1;
+
+        private static Queue<DataPak> messageQueue = new Queue<DataPak>();
+
         private static System.Net.Sockets.TcpClient client;
         private static System.IO.StreamWriter writer;
         private static System.IO.StreamReader reader;
@@ -38,6 +42,19 @@ namespace CombatAgent
             }
         }
 
+        public static void ResetTick()
+        {
+            LastCheckTick = -1;
+        }
+
+        public static void Initialize()
+        {
+            if (!initialized)
+            {
+                initialized = true;
+            }
+        }
+
         private static void Reconnect()
         {
             try
@@ -47,6 +64,7 @@ namespace CombatAgent
                 var stream = client.GetStream();
                 writer = new System.IO.StreamWriter(stream);
                 reader = new System.IO.StreamReader(stream);
+                LastCheckTick = -1;
                 Log.Message("Successfully reconnected to socket server");
             }
             catch (Exception e)
@@ -77,38 +95,61 @@ namespace CombatAgent
             }
         }
 
-        private static DataPak ReceiveData()
+        private static void ProcessIncomingMessages()
         {
             try
             {
-                if (client == null || !client.Connected || reader == null)
+                while (client.GetStream().DataAvailable)
                 {
-                    Reconnect();
-                    return null;
+                    string message = reader.ReadLine();
+                    if (!string.IsNullOrEmpty(message))
+                    {
+                        var data = JsonSerializer.Deserialize<DataPak>(message);
+                        messageQueue.Enqueue(data);
+                    }
                 }
-                string message = reader.ReadLine();
-                if (string.IsNullOrEmpty(message))
-                {
-                    return null;
-                }
-                return JsonSerializer.Deserialize<DataPak>(message);
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to receive action: {e.Message}");
-                Reconnect();
-                return null;
+                Log.Error($"Failed to process messages: {e.Message}");
             }
+        }
+
+        private static DataPak GetNextMessageOfType(string type)
+        {
+            ProcessIncomingMessages();
+
+            var messages = messageQueue.ToList();
+            for (int i = 0; i < messages.Count; i++)
+            {
+                if (messages[i].Type == type)
+                {
+                    messageQueue = new Queue<DataPak>(messages.Take(i).Concat(messages.Skip(i + 1)));
+                    return messages[i];
+                }
+            }
+            return null;
         }
 
         public static void SendGameState(GameState gameState)
         {
+            if (LastCheckTick >= gameState.Tick)
+            {
+                Log.Warning("Last check tick is greater than or equal to current tick, skipping...");
+                return;
+            }
+
             var data = new DataPak
             {
                 Type = "GameState",
                 Data = gameState
             };
             SendData(data);
+            while (!ReceiveCheck())
+            {
+                Log.Warning("Failed to receive tick check, resending game state...");
+                SendData(data);
+            }
         }
 
         public static void SendMessage(string message)
@@ -123,44 +164,49 @@ namespace CombatAgent
 
         public static GameAction ReceiveAction()
         {
-            DataPak data;
-            try
+            var data = GetNextMessageOfType("GameAction");
+            if (data == null)
             {
-                data = ReceiveData();
-                if (data == null || string.IsNullOrEmpty(data.Type))
-                {
-                    return null;
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Failed to receive action: {e.Message}");
-                Reconnect();
                 return null;
             }
-
-            if (data.Type == "GameAction")
-            {
-                return JsonSerializer.Deserialize<GameAction>(data.Data.ToString());
-            }
-            else
-            {
-                Log.Error($"Received invalid data type: {data.Type}");
-                return null;
-            }
+            return JsonSerializer.Deserialize<GameAction>(data.Data.ToString());
         }
 
-        public static void ReceiveMessage()
+        public static bool ReceiveCheck()
         {
+            var data = GetNextMessageOfType("TickCheck");
+            if (data == null)
+            {
+                return false;
+            }
+
             try
             {
-                string message = reader.ReadLine();
+                LastCheckTick = JsonSerializer.Deserialize<int>(data.Data.ToString());
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to read message: {e.Message}");
-                Reconnect();
+                Log.Error($"Failed to parse tick check: {e.Message}");
+                return false;
             }
+
+            return true;
+        }
+
+        public static bool ReceiveReset()
+        {
+            var data = GetNextMessageOfType("Reset");
+            return data != null;
+        }
+
+        public static string ReceiveLog()
+        {
+            var data = GetNextMessageOfType("Log");
+            if (data == null)
+            {
+                return null;
+            }
+            return data.Data.ToString();
         }
     }
 }

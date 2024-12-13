@@ -21,7 +21,7 @@ namespace CombatAgent
     {
         public static void SetPrefs()
         {
-            Prefs.DevMode = false;
+            Prefs.DevMode = true;
             DebugViewSettings.neverForceNormalSpeed = true;
             Prefs.AutomaticPauseMode = AutomaticPauseMode.Never;
             Prefs.PauseOnLoad = false;

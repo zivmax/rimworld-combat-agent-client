@@ -3,6 +3,13 @@ using System.Collections.Generic;
 
 namespace CombatAgent
 {
+    public enum GameStatus
+    {
+        RUNNING,
+        LOSE,
+        WIN,
+    }
+
     [Serializable]
     public class GameState
     {

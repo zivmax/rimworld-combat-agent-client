@@ -146,16 +146,27 @@ namespace CombatAgent
 
         public static bool IsGameEnding(bool countBlackMan = false)
         {
-            if (!countBlackMan)
+            var capableAllies = pawnStatesCache.Values.Count(pawn => pawn.IsAlly && !pawn.IsIncapable);
+            var capableEnemies = pawnStatesCache.Values.Count(pawn => !pawn.IsAlly && !pawn.IsIncapable);
+
+            int expectedPawnCount = countBlackMan ? 7 : 6;
+
+            if (pawnStatesCache.Count != expectedPawnCount)
             {
-                // Wait till the man in black arrives
-                return pawnStatesCache.Count == 7 && pawnStatesCache.Values.All(pawn => pawn.IsIncapable && pawn.IsAlly);
+                return countBlackMan ? GameStatus.RUNNING : GameStatus.LOSE;
             }
-            else
+
+            if (capableAllies == 0 && capableEnemies > 0)
             {
-                // Check if every ally is incapable
-                return pawnStatesCache.Values.All(pawn => pawn.IsIncapable && pawn.IsAlly);
+                return GameStatus.LOSE;
             }
+
+            if (capableEnemies == 0)
+            {
+                return GameStatus.WIN;
+            }
+
+            return GameStatus.RUNNING;
         }
 
         public static void LogPawnStates()
