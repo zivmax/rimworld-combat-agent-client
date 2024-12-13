@@ -22,6 +22,7 @@ namespace CombatAgent
         private static System.Net.Sockets.TcpClient client;
         private static System.IO.StreamWriter writer;
         private static System.IO.StreamReader reader;
+        private static bool initialized = false;
 
         static SocketClient()
         {
@@ -35,6 +36,14 @@ namespace CombatAgent
             catch (Exception e)
             {
                 Log.Error($"Failed to initialize socket connection: {e.Message}");
+            }
+        }
+
+        public static void Initialize()
+        {
+            if (!initialized)
+            {
+                initialized = true;
             }
         }
 
