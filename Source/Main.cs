@@ -59,31 +59,15 @@ namespace CombatAgent
                 Status = StateCollector.CheckGameStatus()
             };
 
-            try
-            {
-                SocketClient.SendGameState(state);
-                Log.Message("Sent game state to server");
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Failed to send game state to server: {ex.Message}");
-            }
+            AgentResponse res = SocketClient.SendState(state);
 
-            if (SocketClient.ReceiveReset())
+            if (res.Reset)
             {
-                SocketClient.SendLog("Game is ending, restarting");
                 Restart();
                 return;
             }
 
-            GameAction action = SocketClient.ReceiveAction();
-            while (action == null)
-            {
-                SocketClient.SendLog("Game is looping...");
-                action = SocketClient.ReceiveAction();
-            }
-
-            PawnController.PerformAction(action);
+            PawnController.PerformAction(res.Action);
 
             // Resume the game
             Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;

@@ -137,7 +137,7 @@ namespace CombatAgent
 
             int expectedPawnCount = countBlackMan ? 7 : 6;
 
-            if (pawnStatesCache.Count != expectedPawnCount)
+            if (!(pawnStatesCache.Count <= expectedPawnCount))
             {
                 return countBlackMan ? GameStatus.RUNNING : GameStatus.LOSE;
             }

@@ -9,6 +9,13 @@ using Verse;
 
 namespace CombatAgent
 {
+    [Serializable]
+    public class AgentResponse
+    {
+        public GameAction Action { get; set; }
+        public bool Reset { get; set; }
+    }
+
     public static class SocketClient
     {
         private static Queue<DataPak> dataPakQueue = new Queue<DataPak>();
@@ -79,6 +86,31 @@ namespace CombatAgent
             public object Data { get; set; }
         }
 
+
+        private static DataPak ReceiveData()
+        {
+            try
+            {
+                if (client == null || !client.Connected || reader == null)
+                {
+                    Reconnect();
+                    return null;
+                }
+                string message = reader.ReadLine();
+                if (string.IsNullOrEmpty(message))
+                {
+                    return null;
+                }
+                return JsonSerializer.Deserialize<DataPak>(message);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to receive action: {e.Message}");
+                Reconnect();
+                return null;
+            }
+        }
+
         private static void SendData(DataPak data)
         {
             try
@@ -101,49 +133,9 @@ namespace CombatAgent
             }
         }
 
-        private static void ProcessIncomingData()
-        {
-            try
-            {
-                while (!IsConnected())
-                {
-                    Log.Warning("Socket not connected, attempting to reconnect...");
-                    Reconnect();
-                }
 
-                while (client.GetStream().DataAvailable)
-                {
-                    string message = reader.ReadLine();
-                    if (!string.IsNullOrEmpty(message))
-                    {
-                        var data = JsonSerializer.Deserialize<DataPak>(message);
-                        dataPakQueue.Enqueue(data);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Failed to process messages: {e.Message}");
-            }
-        }
 
-        private static DataPak GetNextMessageOfType(string type)
-        {
-            ProcessIncomingData();
-
-            var messages = dataPakQueue.ToList();
-            for (int i = 0; i < messages.Count; i++)
-            {
-                if (messages[i].Type == type)
-                {
-                    dataPakQueue = new Queue<DataPak>(messages.Take(i).Concat(messages.Skip(i + 1)));
-                    return messages[i];
-                }
-            }
-            return null;
-        }
-
-        public static void SendGameState(GameState state)
+        public static AgentResponse SendState(GameState state)
         {
             var data = new DataPak
             {
@@ -151,32 +143,16 @@ namespace CombatAgent
                 Data = state
             };
             SendData(data);
-        }
 
-        public static void SendLog(string log)
-        {
-            var data = new DataPak
+            var response = ReceiveData();
+            while (response == null)
             {
-                Type = "Log",
-                Data = log
-            };
-            SendData(data);
-        }
-
-        public static GameAction ReceiveAction()
-        {
-            var data = GetNextMessageOfType("GameAction");
-            if (data == null)
-            {
-                return null;
+                SendData(data);
+                response = ReceiveData();
             }
-            return JsonSerializer.Deserialize<GameAction>(data.Data.ToString());
+
+            return JsonSerializer.Deserialize<AgentResponse>(JsonSerializer.Serialize(response.Data));
         }
 
-        public static bool ReceiveReset()
-        {
-            var data = GetNextMessageOfType("Reset");
-            return data != null;
-        }
     }
 }
