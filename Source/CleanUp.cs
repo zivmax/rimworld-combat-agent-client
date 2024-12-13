@@ -45,6 +45,14 @@ namespace CombatAgent
                 def.baseChance = 0f;
                 def.minThreatPoints = 999f;
             });
+
+            DefDatabase<PawnKindDef>.AllDefs
+                .Where(def => def.RaceProps.Animal)
+                .ToList()
+                .ForEach(def => {
+                    def.canArriveManhunter = false;
+                    def.wildGroupSize = IntRange.zero;
+                });
         }
     }
 }
