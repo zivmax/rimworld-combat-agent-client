@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -31,51 +31,57 @@ namespace CombatAgent
 
         private static void PACycle()
         {
-                // Pause the game
-                Find.TickManager.Pause();
+            // Pause the game
+            Find.TickManager.Pause();
 
-                var state = new GameState
-                {
-                    MapState = StateCollector.CollectMapState(),
-                    PawnStates = StateCollector.CollectPawnStates(),
-                    Tick = Find.TickManager.TicksGame,
-                    GameEnding = StateCollector.IsGameEnding()
-                };
+            var state = new GameState
+            {
+                MapState = StateCollector.CollectMapState(),
+                PawnStates = StateCollector.CollectPawnStates(),
+                Tick = Find.TickManager.TicksGame,
+                GameEnding = StateCollector.IsGameEnding()
+            };
 
+            try
+            {
+                SocketClient.SendGameState(state);
+                Log.Message("Sent game state to server");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Failed to send game state to server: {ex.Message}");
+            }
+
+            if (state.GameEnding)
+            {
+                Log.Message("Game is ending, restarting");
+                StateCollector.Reset();
+                Current.Game.CurrentMap.Parent.Destroy();
+                Root_Play.SetupForQuickTestPlay();
+                Find.GameInitData.PrepForMapGen();
+                Find.Scenario.PreMapGenerate();
+                Current.Game.InitNewGame();
+                return;
+            }
+
+            GameAction action = null;
+            while (action == null)
+            {
                 try
                 {
-                    SocketClient.SendGameState(state);
-                    Log.Message("Sent game state to server");
+                    action = SocketClient.ReceiveAction();
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    Log.Error($"Failed to send game state to server: {ex.Message}");
+                    Log.Error($"Failed to receive action from server: {e}");
+                    break;
                 }
+            }
 
-                if (state.GameEnding)
-                {
-                    Current.Game.InitNewGame();
-                    return;
-                }
+            PawnController.PerformAction(action);
 
-                GameAction action = null;
-                while (action == null)
-                {
-                    try
-                    {
-                        action = SocketClient.ReceiveAction();
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error($"Failed to receive action from server: {e}");
-                        break;
-                    }
-                }
-
-                PawnController.PerformAction(action);
-
-                // Resume the game
-                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            // Resume the game
+            Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
         }
 
         public override void GameComponentTick()
@@ -94,7 +100,7 @@ namespace CombatAgent
         public override void StartedNewGame()
         {
             CleanUp.Clean();
-            trainMap = MapGen.CreatePocketMap(); 
+            trainMap = MapGen.CreatePocketMap();
             Current.Game.CurrentMap = trainMap;
             PawnsGen.GenPawns(trainMap);
             CameraJumper.TryJump(trainMap.Center, trainMap);

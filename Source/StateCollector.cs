@@ -16,6 +16,13 @@ namespace CombatAgent
 
         public static MapState mapStateCache = new MapState(0, 0);
 
+
+        public static void Reset()
+        {
+            pawnStatesCache.Clear();
+            mapStateCache = new MapState(0, 0);
+        }
+
         // Pawn-related methods
         public static PawnStates CollectPawnStates()
         {
@@ -131,12 +138,12 @@ namespace CombatAgent
             if (countBlackMan)
             {
                 // Wait till the man in black arrives
-                return capableAllies.Count == 0 && pawnStatesCache.Count == 7;
+                return capableAllies.Count == 0 && pawnStatesCache.Count >= 7;
             }
             else
             {
                 // Check if every ally is incapable
-                return capableAllies.Count == 0 && pawnStatesCache.Count == 6;
+                return capableAllies.Count == 0 && pawnStatesCache.Count >= 6;
             }
         }
 
