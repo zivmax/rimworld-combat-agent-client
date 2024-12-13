@@ -135,9 +135,14 @@ namespace CombatAgent
             {
                 mapStateCache.Cells[$"({cell.x},{cell.z})"] = new CellState
                 {
-                    {"IsWall", cell.GetEdifice(Map)?.def.fillPercent >= 1f},
-                    {"IsTree", cell.GetPlant(Map)?.def.plant?.IsTree ?? false},
-                    {"IsPawn", cell.GetFirstPawn(Map) != null}
+                    Loc = new Dictionary<string, int>
+                    {
+                        { "X", cell.x },
+                        { "Y", cell.z }
+                    },
+                    IsWall = cell.GetEdifice(Map)?.def.fillPercent >= 1f,
+                    IsTree = cell.GetPlant(Map)?.def.plant?.IsTree ?? false,
+                    IsPawn = cell.GetFirstPawn(Map) != null
                 };
             }
 

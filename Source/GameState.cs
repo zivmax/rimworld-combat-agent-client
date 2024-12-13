@@ -30,7 +30,12 @@ namespace CombatAgent
 
 
     [Serializable]
-    public class CellState : Dictionary<string, bool> { }
+    public class CellState {
+        public Dictionary<string, int> Loc { get; set; }
+        public bool IsTree { get; set; }
+        public bool IsWall { get; set; }
+        public bool IsPawn { get; set; }
+     }
 
     [Serializable]
     public class MapState
