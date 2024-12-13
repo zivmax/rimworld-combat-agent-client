@@ -68,7 +68,7 @@ namespace CombatAgent
                     },
                         HealthStats = new Dictionary<string, float>
                     {
-                        { "PainShock", pawn.health.hediffSet.PainTotal },
+                        { "PainTotal", pawn.health.hediffSet.PainTotal },
                         { "BloodLoss", pawn.health.hediffSet.BleedRateTotal },
                     },
                         IsIncapable = false
