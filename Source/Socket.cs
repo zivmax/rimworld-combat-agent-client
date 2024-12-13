@@ -11,6 +11,8 @@ namespace CombatAgent
 {
     public static class SocketClient
     {
+        private static Queue<DataPak> dataPakQueue = new Queue<DataPak>();
+
         private static System.Net.Sockets.TcpClient client;
         private static System.IO.StreamWriter writer;
         private static System.IO.StreamReader reader;
@@ -99,7 +101,7 @@ namespace CombatAgent
             }
         }
 
-        private static DataPak ReceiveData()
+        private static void ProcessIncomingData()
         {
             try
             {
@@ -107,74 +109,74 @@ namespace CombatAgent
                 {
                     Log.Warning("Socket not connected, attempting to reconnect...");
                     Reconnect();
-                    if (!IsConnected())
-                    {
-                        return null;
-                    }
                 }
 
-                string message = reader.ReadLine();
-                if (string.IsNullOrEmpty(message))
+                while (client.GetStream().DataAvailable)
                 {
-                    return null;
+                    string message = reader.ReadLine();
+                    if (!string.IsNullOrEmpty(message))
+                    {
+                        var data = JsonSerializer.Deserialize<DataPak>(message);
+                        dataPakQueue.Enqueue(data);
+                    }
                 }
-                return JsonSerializer.Deserialize<DataPak>(message);
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to receive data: {e.Message}");
-                Reconnect();
-                return null;
+                Log.Error($"Failed to process messages: {e.Message}");
             }
         }
 
+        private static DataPak GetNextMessageOfType(string type)
+        {
+            ProcessIncomingData();
 
-        public static void SendGameState(GameState gameState)
+            var messages = dataPakQueue.ToList();
+            for (int i = 0; i < messages.Count; i++)
+            {
+                if (messages[i].Type == type)
+                {
+                    dataPakQueue = new Queue<DataPak>(messages.Take(i).Concat(messages.Skip(i + 1)));
+                    return messages[i];
+                }
+            }
+            return null;
+        }
+
+        public static void SendGameState(GameState state)
         {
             var data = new DataPak
             {
                 Type = "GameState",
-                Data = gameState
+                Data = state
             };
             SendData(data);
         }
 
-        public static void SendMessage(string message)
+        public static void SendLog(string log)
         {
             var data = new DataPak
             {
                 Type = "Log",
-                Data = message
+                Data = log
             };
             SendData(data);
         }
 
         public static GameAction ReceiveAction()
         {
-            DataPak data;
-            try
+            var data = GetNextMessageOfType("GameAction");
+            if (data == null)
             {
-                data = ReceiveData();
-                if (data == null || string.IsNullOrEmpty(data.Type))
-                {
-                    return null;
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Failed to receive action: {e.Message}");
                 return null;
             }
+            return JsonSerializer.Deserialize<GameAction>(data.Data.ToString());
+        }
 
-            if (data.Type == "GameAction")
-            {
-                return JsonSerializer.Deserialize<GameAction>(data.Data.ToString());
-            }
-            else
-            {
-                Log.Error($"Received invalid data type: {data.Type}");
-                return null;
-            }
+        public static bool ReceiveReset()
+        {
+            var data = GetNextMessageOfType("Reset");
+            return data != null;
         }
     }
 }

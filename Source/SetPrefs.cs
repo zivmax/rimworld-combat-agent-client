@@ -6,7 +6,7 @@ namespace CombatAgent
     {
         public static void SetPrefs()
         {
-            Prefs.DevMode = true;
+            Prefs.DevMode = false;
             DebugViewSettings.neverForceNormalSpeed = true;
             Prefs.AutomaticPauseMode = AutomaticPauseMode.Never;
             Prefs.PauseOnLoad = false;

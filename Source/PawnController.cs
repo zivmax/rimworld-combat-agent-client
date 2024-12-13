@@ -22,7 +22,12 @@ namespace CombatAgent
         }
 
         public static void PerformAction(GameAction action)
-        {
+        {   
+            if (action == null)
+            {
+                return;
+            }
+
             foreach (PawnAction pawnAction in action.PawnActions.Values)
             {
                 Pawn pawn = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShort == pawnAction.Label);

@@ -31,7 +31,7 @@ namespace CombatAgent
                 type = type.ToString(),
                 logString = logString
             };
-            SocketClient.SendMessage(JsonSerializer.Serialize(log));
+            SocketClient.SendLog(JsonSerializer.Serialize(log));
         }
 
 

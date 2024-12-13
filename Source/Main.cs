@@ -22,6 +22,7 @@ namespace CombatAgent
         public CombatAgentMain(Game game) { }
 
         private Map trainMap;
+        private static bool restarting = true;
 
         private static int Second(int second)
         {
@@ -31,6 +32,7 @@ namespace CombatAgent
 
         private static void Restart()
         {
+            restarting = true;
             StateCollector.Reset();
             Current.Game.CurrentMap.Parent.Destroy();
             Root_Play.SetupForQuickTestPlay();
@@ -41,6 +43,11 @@ namespace CombatAgent
 
         private static void PACycle()
         {
+            if (restarting)
+            {
+                return;
+            }
+
             // Pause the game
             Find.TickManager.Pause();
 
@@ -62,9 +69,9 @@ namespace CombatAgent
                 Log.Error($"Failed to send game state to server: {ex.Message}");
             }
 
-            if (state.Status != GameStatus.RUNNING)
+            if (SocketClient.ReceiveReset())
             {
-                Log.Message("Game is ending, restarting");
+                SocketClient.SendLog("Game is ending, restarting");
                 Restart();
                 return;
             }
@@ -72,7 +79,7 @@ namespace CombatAgent
             GameAction action = SocketClient.ReceiveAction();
             while (action == null)
             {
-                SocketClient.SendGameState(state);
+                SocketClient.SendLog("Game is looping...");
                 action = SocketClient.ReceiveAction();
             }
 
@@ -103,6 +110,7 @@ namespace CombatAgent
             PawnsGen.GenPawns(trainMap);
             CameraJumper.TryJump(trainMap.Center, trainMap);
             PawnController.DraftAllAllies();
+            restarting = false;
             PACycle();
         }
     }
