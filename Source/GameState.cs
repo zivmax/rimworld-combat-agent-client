@@ -3,13 +3,20 @@ using System.Collections.Generic;
 
 namespace CombatAgent
 {
+    public enum GameStatus
+    {
+        Running,
+        Win,
+        Lose
+    }
+
     [Serializable]
     public class GameState
     {
         public MapState MapState { get; set; }
         public PawnStates PawnStates { get; set; }
         public int Tick { get; set; }
-        public bool GameEnding { get; set; }
+        public GameStatus Status { get; set; }
     }
 
     [Serializable]

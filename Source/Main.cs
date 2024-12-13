@@ -29,6 +29,16 @@ namespace CombatAgent
             return second * 60;
         }
 
+        private static void Restart()
+        {
+            StateCollector.Reset();
+            Current.Game.CurrentMap.Parent.Destroy();
+            Root_Play.SetupForQuickTestPlay();
+            Find.GameInitData.PrepForMapGen();
+            Find.Scenario.PreMapGenerate();
+            Current.Game.InitNewGame();
+        }
+
         private static void PACycle()
         {
             // Pause the game
@@ -39,7 +49,7 @@ namespace CombatAgent
                 MapState = StateCollector.CollectMapState(),
                 PawnStates = StateCollector.CollectPawnStates(),
                 Tick = Find.TickManager.TicksGame,
-                GameEnding = StateCollector.IsGameEnding()
+                Status = StateCollector.CheckGameStatus()
             };
 
             try
@@ -52,30 +62,18 @@ namespace CombatAgent
                 Log.Error($"Failed to send game state to server: {ex.Message}");
             }
 
-            if (state.GameEnding)
+            if (state.Status != GameStatus.Running)
             {
                 Log.Message("Game is ending, restarting");
-                StateCollector.Reset();
-                Current.Game.CurrentMap.Parent.Destroy();
-                Root_Play.SetupForQuickTestPlay();
-                Find.GameInitData.PrepForMapGen();
-                Find.Scenario.PreMapGenerate();
-                Current.Game.InitNewGame();
+                Restart();
                 return;
             }
 
-            GameAction action = null;
+            GameAction action = SocketClient.ReceiveAction();
             while (action == null)
             {
-                try
-                {
-                    action = SocketClient.ReceiveAction();
-                }
-                catch (Exception e)
-                {
-                    Log.Error($"Failed to receive action from server: {e}");
-                    break;
-                }
+                SocketClient.SendGameState(state);
+                action = SocketClient.ReceiveAction();
             }
 
             PawnController.PerformAction(action);
