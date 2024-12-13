@@ -50,6 +50,12 @@ namespace CombatAgent
                     Log.Error($"Failed to send game state to server: {ex.Message}");
                 }
 
+                if (state.GameEnding)
+                {
+                    Current.Game.InitNewGame();
+                    return;
+                }
+
                 GameAction action = null;
                 while (action == null)
                 {
