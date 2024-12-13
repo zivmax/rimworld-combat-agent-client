@@ -4,16 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 
-using UnityEngine;
 using Verse;
-using Verse.AI;
-using Verse.AI.Group;
-using Verse.Sound;
-using Verse.Noise;
-using Verse.Grammar;
-using RimWorld;
-using RimWorld.Planet;
-using Microsoft.SqlServer.Server;
+
 
 namespace CombatAgent
 {
