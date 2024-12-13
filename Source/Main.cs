@@ -27,10 +27,8 @@ namespace CombatAgent
             return second * 60;
         }
 
-        public override void GameComponentTick()
+        private static void PACycle()
         {
-            if (Find.TickManager.TicksGame % Second(5) == 0)
-            {
                 // Pause the game
                 Find.TickManager.Pause();
 
@@ -70,6 +68,13 @@ namespace CombatAgent
 
                 // Resume the game
                 Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+        }
+
+        public override void GameComponentTick()
+        {
+            if (Find.TickManager.TicksGame % Second(5) == 0)
+            {
+                PACycle();
             }
         }
 
@@ -81,7 +86,7 @@ namespace CombatAgent
             PawnsGen.GenPawns();
             CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));
             PawnController.DraftAllAllies();
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            PACycle();
         }
     }
 }
