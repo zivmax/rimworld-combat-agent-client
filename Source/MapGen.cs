@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -9,7 +8,7 @@ namespace CombatAgent
 {
     public static class MapGen
     {
-        public static void CreatePocketMap()
+        public static Map CreatePocketMap()
         {
             IntVec3 mapSize = new IntVec3(30, 1, 30);
             MapParent mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
@@ -96,7 +95,7 @@ namespace CombatAgent
                 }
             }
 
-            Current.Game.CurrentMap = map;
+            return map;
         }
     }
 }

@@ -28,14 +28,7 @@ namespace CombatAgent
                 pawn.Destroy();
             }
 
-            var oldMaps = Find.Maps.ToList();
-            foreach (var oldMap in oldMaps)
-            {
-                if (oldMap.Parent is Settlement settlement)
-                {
-                    settlement.Abandon();
-                }
-            }
+            Current.Game.CurrentMap.Parent.Destroy();
 
             List<Settlement> settlements = Find.WorldObjects.Settlements.ToList();
             foreach (Settlement settlement in settlements)
@@ -52,6 +45,14 @@ namespace CombatAgent
                 def.baseChance = 0f;
                 def.minThreatPoints = 999f;
             });
+
+            DefDatabase<PawnKindDef>.AllDefs
+                .Where(def => def.RaceProps.Animal)
+                .ToList()
+                .ForEach(def => {
+                    def.canArriveManhunter = false;
+                    def.wildGroupSize = IntRange.zero;
+                });
         }
     }
 }

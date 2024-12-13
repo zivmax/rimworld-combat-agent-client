@@ -1,19 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-using UnityEngine;
 using Verse;
-using Verse.AI;
-using Verse.AI.Group;
-using Verse.Sound;
-using Verse.Noise;
-using Verse.Grammar;
 using RimWorld;
-using RimWorld.Planet;
 
 namespace CombatAgent
 {
@@ -26,99 +16,91 @@ namespace CombatAgent
 
         public static MapState mapStateCache = new MapState(0, 0);
 
+
+        public static void Reset()
+        {
+            pawnStatesCache.Clear();
+            mapStateCache = new MapState(0, 0);
+        }
+
         // Pawn-related methods
         public static PawnStates CollectPawnStates()
         {
+            // Process living pawns
             foreach (Pawn pawn in Map.mapPawns.AllHumanlike)
             {
-                PawnState state;
-                if (pawn.DeadOrDowned)
-                {
-                    state = new PawnState
-                    {
-                        Label = pawn.LabelShort,
-                        IsAlly = pawn.Faction == Faction.OfPlayer,
-                        Loc = new Dictionary<string, int>
-                        {
-                            { "X", pawn.Position.x },
-                            { "Y", pawn.Position.z }
-                        },
-                        Equipment = "",
-                        CombatStats = new Dictionary<string, float>
-                        {
-                            { "MeleeDPS", 0 },
-                            { "ShootingACC", 0 },
-                            { "MoveSpeed", 0 }
-                        },
-                        HealthStats = new Dictionary<string, float>
-                        {
-                            { "PainShock", 0 },
-                            { "BloodLoss", 0 },
-                        },
-                        IsIncapable = true
-                    };
-                }
-                else
-                {
-                    state = new PawnState
-                    {
-                        Label = pawn.LabelShort,
-                        IsAlly = pawn.Faction == Faction.OfPlayer,
-                        Loc = new Dictionary<string, int>
-                    {
-                        { "X", pawn.Position.x },
-                        { "Y", pawn.Position.z }
-                    },
-                        Equipment = pawn.equipment?.Primary?.LabelShort ?? "",
-                        CombatStats = new Dictionary<string, float>
+                pawnStatesCache[pawn.LabelShort] = CreatePawnState(
+                    pawn.LabelShort,
+                    pawn.Faction == Faction.OfPlayer,
+                    pawn.Position,
+                    isIncapable: pawn.DeadOrDowned,
+                    equipment: pawn.DeadOrDowned ? "" : pawn.equipment?.Primary?.LabelShort ?? "",
+                    combatStats: pawn.DeadOrDowned ? null : new Dictionary<string, float>
                     {
                         { "MeleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
                         { "ShootingACC", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
                         { "MoveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
                     },
-                        HealthStats = new Dictionary<string, float>
+                    healthStats: pawn.DeadOrDowned ? null : new Dictionary<string, float>
                     {
-                        { "PainShock", pawn.health.hediffSet.PainTotal },
+                        { "PainTotal", pawn.health.hediffSet.PainTotal },
                         { "BloodLoss", pawn.health.hediffSet.BleedRateTotal },
-                    },
-                        IsIncapable = false
-                    };
-                }
-                pawnStatesCache[pawn.LabelShort] = state;
+                    }
+                );
             }
 
+            // Process corpses
             foreach (Thing thing in Map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse))
             {
                 if (thing is Corpse corpse && corpse.InnerPawn.RaceProps.Humanlike)
                 {
-                    var state = new PawnState
-                    {
-                        Label = corpse.InnerPawn.LabelShort,
-                        IsAlly = corpse.InnerPawn.Faction == Faction.OfPlayer,
-                        Loc = new Dictionary<string, int>
-                        {
-                            { "X", corpse.Position.x },
-                            { "Y", corpse.Position.z }
-                        },
-                        Equipment = "",
-                        CombatStats = new Dictionary<string, float>
-                        {
-                            { "MeleeDPS", 0 },
-                            { "ShootingACC", 0 },
-                            { "MoveSpeed", 0 }
-                        },
-                        HealthStats = new Dictionary<string, float>
-                        {
-                            { "PainShock", 0 },
-                            { "BloodLoss", 0 },
-                        },
-                        IsIncapable = true
-                    };
-                    pawnStatesCache[corpse.InnerPawn.LabelShort] = state;
+                    pawnStatesCache[corpse.InnerPawn.LabelShort] = CreatePawnState(
+                        corpse.InnerPawn.LabelShort,
+                        corpse.InnerPawn.Faction == Faction.OfPlayer,
+                        corpse.Position,
+                        isIncapable: true,
+                        equipment: "",
+                        combatStats: null,
+                        healthStats: null
+                    );
                 }
             }
 
             return pawnStatesCache;
+        }
+
+        private static PawnState CreatePawnState(
+            string label,
+            bool isAlly,
+            IntVec3 position,
+            bool isIncapable,
+            string equipment,
+            Dictionary<string, float> combatStats = null,
+            Dictionary<string, float> healthStats = null)
+        {
+            return new PawnState
+            {
+                Label = label,
+                IsAlly = isAlly,
+                Loc = new Dictionary<string, int>
+                {
+                    { "X", position.x },
+                    { "Y", position.z }
+                },
+                Equipment = equipment,
+                CombatStats = combatStats ?? new Dictionary<string, float>
+                {
+                    { "MeleeDPS", 0 },
+                    { "ShootingACC", 0 },
+                    { "MoveSpeed", 0 }
+                },
+                HealthStats = healthStats ?? new Dictionary<string, float>
+                {
+                    { "PainTotal", 0 },
+                    { "BloodLoss", 0 },
+                },
+                IsIncapable = isIncapable
+            };
         }
 
 
@@ -135,16 +117,20 @@ namespace CombatAgent
             {
                 mapStateCache.Cells[$"({cell.x},{cell.z})"] = new CellState
                 {
-                    {"IsWall", cell.GetEdifice(Map)?.def.fillPercent >= 1f},
-                    {"IsTree", cell.GetPlant(Map)?.def.plant?.IsTree ?? false},
-                    {"IsPawn", cell.GetFirstPawn(Map) != null}
+                    Loc = new Dictionary<string, int>
+                    {
+                        { "X", cell.x },
+                        { "Y", cell.z }
+                    },
+                    IsWall = cell.GetEdifice(Map)?.def.fillPercent >= 1f,
+                    IsTree = cell.GetPlant(Map)?.def.plant?.IsTree ?? false,
+                    IsPawn = cell.GetFirstPawn(Map) != null
                 };
             }
 
             return mapStateCache;
         }
-
-        public static bool IsGameEnding(bool countBlackMan = false)
+        public static GameStatus CheckGameStatus(bool countBlackMan = false)
         {
             var capableAllies = pawnStatesCache.Values.Count(pawn => pawn.IsAlly && !pawn.IsIncapable);
             var capableEnemies = pawnStatesCache.Values.Count(pawn => !pawn.IsAlly && !pawn.IsIncapable);

@@ -21,39 +21,50 @@ namespace CombatAgent
     {
         public CombatAgentMain(Game game) { }
 
+        private Map trainMap;
+
         private static int Second(int second)
         {
             // 60 ticks per second
             return second * 60;
         }
 
-        public override void GameComponentTick()
+        private static void Restart()
         {
-            if (Find.TickManager.TicksGame % Second(5) == 0)
+            StateCollector.Reset();
+            Current.Game.CurrentMap.Parent.Destroy();
+            Root_Play.SetupForQuickTestPlay();
+            Find.GameInitData.PrepForMapGen();
+            Find.Scenario.PreMapGenerate();
+            Current.Game.InitNewGame();
+        }
+
+        private static void PACycle()
+        {
+            // Pause the game
+            Find.TickManager.Pause();
+
+            var state = new GameState
             {
-                // Pause the game
-                Find.TickManager.Pause();
+                MapState = StateCollector.CollectMapState(),
+                PawnStates = StateCollector.CollectPawnStates(),
+                Tick = Find.TickManager.TicksGame,
+                Status = StateCollector.CheckGameStatus()
+            };
 
-                var state = new GameState
-                {
-                    MapState = StateCollector.CollectMapState(),
-                    PawnStates = StateCollector.CollectPawnStates(),
-                    Tick = Find.TickManager.TicksGame,
-                    GameEnding = StateCollector.IsGameEnding()
-                };
-
-                try
-                {
-                    SocketClient.SendGameState(state);
-                    Log.Message("Sent game state to server");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Failed to send game state to server: {ex.Message}");
-                }
-
-            if (SocketClient.ReceiveReset())
+            try
             {
+                SocketClient.SendGameState(state);
+                Log.Message("Sent game state to server");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Failed to send game state to server: {ex.Message}");
+            }
+
+            if (state.Status != GameStatus.RUNNING)
+            {
+                Log.Message("Game is ending, restarting");
                 Restart();
                 return;
             }
@@ -65,10 +76,10 @@ namespace CombatAgent
                 action = SocketClient.ReceiveAction();
             }
 
-                PawnController.PerformAction(action);
+            PawnController.PerformAction(action);
 
             // Resume the game
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
         }
 
         public override void GameComponentTick()
@@ -86,13 +97,13 @@ namespace CombatAgent
 
         public override void StartedNewGame()
         {
-            PrefInitializer.SetPrefs();
             CleanUp.Clean();
-            MapGen.CreatePocketMap();
-            PawnsGen.GenPawns();
-            CameraJumper.TryJump(new GlobalTargetInfo(Find.CurrentMap.Center, Find.CurrentMap));
+            trainMap = MapGen.CreatePocketMap();
+            Current.Game.CurrentMap = trainMap;
+            PawnsGen.GenPawns(trainMap);
+            CameraJumper.TryJump(trainMap.Center, trainMap);
             PawnController.DraftAllAllies();
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            PACycle();
         }
     }
 }

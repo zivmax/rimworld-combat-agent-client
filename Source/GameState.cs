@@ -16,7 +16,7 @@ namespace CombatAgent
         public MapState MapState { get; set; }
         public PawnStates PawnStates { get; set; }
         public int Tick { get; set; }
-        public bool GameEnding { get; set; }
+        public GameStatus Status { get; set; }
     }
 
     [Serializable]
@@ -37,7 +37,12 @@ namespace CombatAgent
 
 
     [Serializable]
-    public class CellState : Dictionary<string, bool> { }
+    public class CellState {
+        public Dictionary<string, int> Loc { get; set; }
+        public bool IsTree { get; set; }
+        public bool IsWall { get; set; }
+        public bool IsPawn { get; set; }
+     }
 
     [Serializable]
     public class MapState
