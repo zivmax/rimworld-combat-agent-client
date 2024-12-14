@@ -45,6 +45,8 @@ namespace CombatAgent
                     {
                         { "PainTotal", pawn.health.hediffSet.PainTotal },
                         { "BloodLoss", pawn.health.hediffSet.BleedRateTotal },
+                        { "Consciousness", pawn.health.capacities.GetLevel(PawnCapacityDefOf.Consciousness) },
+                        { "MoveAbility", pawn.health.capacities.GetLevel(PawnCapacityDefOf.Moving) }
                     }
                 );
             }
@@ -92,12 +94,14 @@ namespace CombatAgent
                 {
                     { "MeleeDPS", 0 },
                     { "ShootingACC", 0 },
-                    { "MoveSpeed", 0 }
+                    { "MoveSpeed", 0 },
                 },
                 HealthStats = healthStats ?? new Dictionary<string, float>
                 {
                     { "PainTotal", 0 },
                     { "BloodLoss", 0 },
+                    { "Consciousness", 0 },
+                    { "MoveAbility", 0 }
                 },
                 IsIncapable = isIncapable
             };

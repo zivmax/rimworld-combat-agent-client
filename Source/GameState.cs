@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CombatAgent
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GameStatus
     {
         RUNNING,

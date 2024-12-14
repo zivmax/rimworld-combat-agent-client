@@ -33,7 +33,7 @@ namespace CombatAgent
                     thing.Destroy();
                 }
 
-                // Add poplar trees (10% chance per cell)
+                // Add poplar trees (7.5% chance per cell)
                 if (Rand.Value < 0.075f && cell.Walkable(map))
                 {
                     ThingDef treeDef = ThingDefOf.Plant_TreePoplar;
