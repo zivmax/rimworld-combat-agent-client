@@ -75,7 +75,7 @@ namespace CombatAgent
 
         public override void GameComponentTick()
         {
-            if (Find.TickManager.TicksGame % Second(5) == 0)
+            if (Find.TickManager.TicksGame % Second(1) == 0)
             {
                 PACycle();
             }
