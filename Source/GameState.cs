@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using UnityEngine;
 
 namespace CombatAgent
 {
@@ -50,14 +51,21 @@ namespace CombatAgent
     public class MapState
     {
         public Dictionary<string, CellState> Cells { get; set; }
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
 
         public MapState(int width, int height)
         {
             Width = width;
             Height = height;
             Cells = new Dictionary<string, CellState>();
+        }
+
+        public void Clear()
+        {
+            Width = 0;
+            Height = 0;
+            Cells.Clear();
         }
     }
 }

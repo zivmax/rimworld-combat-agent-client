@@ -14,18 +14,20 @@ namespace CombatAgent
         // Caches
         public static readonly PawnStates pawnStatesCache = new PawnStates();
 
-        public static MapState mapStateCache = new MapState(0, 0);
+        public static readonly MapState mapStateCache = new MapState(0, 0);
 
 
         public static void Reset()
         {
             pawnStatesCache.Clear();
-            mapStateCache = new MapState(0, 0);
+            mapStateCache.Clear();
         }
 
         // Pawn-related methods
         public static PawnStates CollectPawnStates()
         {
+            pawnStatesCache.Clear();
+
             // Process living pawns
             foreach (Pawn pawn in Map.mapPawns.AllHumanlike)
             {
@@ -112,10 +114,9 @@ namespace CombatAgent
         // Map-related methods
         public static MapState CollectMapState()
         {
-            if (mapStateCache == null || mapStateCache.Width != Map.Size.x || mapStateCache.Height != Map.Size.z)
-            {
-                mapStateCache = new MapState(Map.Size.x, Map.Size.z);
-            }
+            mapStateCache.Clear();
+            mapStateCache.Width = Map.Size.x;
+            mapStateCache.Height = Map.Size.z;
 
             foreach (IntVec3 cell in Map.AllCells)
             {
@@ -141,19 +142,14 @@ namespace CombatAgent
 
             int expectedPawnCount = countBlackMan ? 7 : 6;
 
-            if (!(pawnStatesCache.Count <= expectedPawnCount))
-            {
-                return countBlackMan ? GameStatus.RUNNING : GameStatus.LOSE;
-            }
-
-            if (capableAllies == 0 && capableEnemies > 0)
-            {
-                return GameStatus.LOSE;
-            }
-
             if (capableEnemies == 0)
             {
                 return GameStatus.WIN;
+            }
+            
+            if (capableAllies == 0 || pawnStatesCache.Count > expectedPawnCount)
+            {
+                return GameStatus.LOSE;
             }
 
             return GameStatus.RUNNING;
