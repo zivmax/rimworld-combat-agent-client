@@ -26,12 +26,13 @@ namespace CombatAgent
     public class PawnState
     {
         public string Label { get; set; }
-        public bool IsAlly { get; set; }
         public Dictionary<string, int> Loc { get; set; }
+        public bool IsAlly { get; set; }
+        public bool IsIncapable { get; set; }
+        public bool IsAiming { get; set; }
         public string Equipment { get; set; }
         public Dictionary<string, float> CombatStats { get; set; }
         public Dictionary<string, float> HealthStats { get; set; }
-        public bool IsIncapable { get; set; }
     }
 
 

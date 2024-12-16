@@ -24,10 +24,10 @@ namespace CombatAgent
         private Map trainMap;
         private static bool restarting = true;
 
-        private static int Second(int second)
+        private static int Second(float second)
         {
             // 60 ticks per second
-            return second * 60;
+            return (int)(second * 60);
         }
 
         private static void Restart()
@@ -61,21 +61,23 @@ namespace CombatAgent
 
             AgentResponse res = SocketClient.SendState(state);
 
-            if (res.Reset)
+            if (Config.AgentControlEnabled)
             {
-                Restart();
-                return;
+                if (res.Reset)
+                {
+                    Restart();
+                    return;
+                }
+                PawnController.PerformAction(res.Action);
             }
 
-            PawnController.PerformAction(res.Action);
-
             // Resume the game
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
+            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
         }
 
         public override void GameComponentTick()
         {
-            if (Find.TickManager.TicksGame % Second(1) == 0)
+            if (Find.TickManager.TicksGame % Second(Config.Interval) == 0)
             {
                 PACycle();
             }

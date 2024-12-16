@@ -35,13 +35,14 @@ namespace CombatAgent
                     pawn.LabelShort,
                     pawn.Faction == Faction.OfPlayer,
                     pawn.Position,
-                    isIncapable: pawn.DeadOrDowned,
-                    equipment: pawn.DeadOrDowned ? "" : pawn.equipment?.Primary?.LabelShort ?? "",
+                    pawn.DeadOrDowned,
+                    PawnUtility.IsFighting(pawn),
+                    pawn.DeadOrDowned ? "" : pawn.equipment?.Primary?.LabelShort ?? "",
                     combatStats: pawn.DeadOrDowned ? null : new Dictionary<string, float>
                     {
                         { "MeleeDPS", pawn.GetStatValue(StatDefOf.MeleeDPS) },
                         { "ShootingACC", pawn.GetStatValue(StatDefOf.ShootingAccuracyPawn) },
-                        { "MoveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) }
+                        { "MoveSpeed", pawn.GetStatValue(StatDefOf.MoveSpeed) },
                     },
                     healthStats: pawn.DeadOrDowned ? null : new Dictionary<string, float>
                     {
@@ -63,6 +64,7 @@ namespace CombatAgent
                         corpse.InnerPawn.Faction == Faction.OfPlayer,
                         corpse.Position,
                         isIncapable: true,
+                        isAiming: false,
                         equipment: "",
                         combatStats: null,
                         healthStats: null
@@ -78,6 +80,7 @@ namespace CombatAgent
             bool isAlly,
             IntVec3 position,
             bool isIncapable,
+            bool isAiming,
             string equipment,
             Dictionary<string, float> combatStats = null,
             Dictionary<string, float> healthStats = null)
@@ -91,6 +94,8 @@ namespace CombatAgent
                     { "X", position.x },
                     { "Y", position.z }
                 },
+                IsIncapable = isIncapable,
+                IsAiming = isAiming,
                 Equipment = equipment,
                 CombatStats = combatStats ?? new Dictionary<string, float>
                 {
@@ -105,7 +110,6 @@ namespace CombatAgent
                     { "Consciousness", 0 },
                     { "MoveAbility", 0 }
                 },
-                IsIncapable = isIncapable
             };
         }
 
@@ -146,7 +150,7 @@ namespace CombatAgent
             {
                 return GameStatus.WIN;
             }
-            
+
             if (capableAllies == 0 || pawnStatesCache.Count > expectedPawnCount)
             {
                 return GameStatus.LOSE;
