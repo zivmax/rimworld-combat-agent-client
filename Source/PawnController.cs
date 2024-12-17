@@ -21,14 +21,14 @@ namespace CombatAgent
             }
         }
 
-        public static void PerformAction(GameAction action)
+        public static void PerformAction(PawnActions actions)
         {   
-            if (action == null)
+            if (actions == null)
             {
                 return;
             }
 
-            foreach (PawnAction pawnAction in action.PawnActions.Values)
+            foreach (PawnAction pawnAction in actions.Values)
             {
                 Pawn pawn = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShort == pawnAction.Label);
                 if (pawn != null)

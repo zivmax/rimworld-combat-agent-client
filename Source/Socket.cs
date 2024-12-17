@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Text.Json;
 
 using Verse;
@@ -14,12 +11,12 @@ namespace CombatAgent
     {
         public GameAction Action { get; set; }
         public bool Reset { get; set; }
+        public float Interval { get; set; }
+        public int Speed { get; set; }
     }
 
     public static class SocketClient
     {
-        private static Queue<DataPak> dataPakQueue = new Queue<DataPak>();
-
         private static System.Net.Sockets.TcpClient client;
         private static System.IO.StreamWriter writer;
         private static System.IO.StreamReader reader;

@@ -11,9 +11,11 @@ namespace CombatAgent
         public int Y { get; set; }
     }
 
+    public class PawnActions : Dictionary<string, PawnAction> { } 
+
     [Serializable]
     public class GameAction
     {
-        public Dictionary<string, PawnAction> PawnActions { get; set; }
+        public PawnActions PawnActions { get; set; }
     }
 }

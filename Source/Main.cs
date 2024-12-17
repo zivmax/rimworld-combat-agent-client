@@ -1,19 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using Verse;
 
-using UnityEngine;
-using Verse;
-using Verse.AI;
-using Verse.AI.Group;
-using Verse.Sound;
-using Verse.Noise;
-using Verse.Grammar;
-using RimWorld;
-using RimWorld.Planet;
-using RimWorld.SketchGen;
 
 namespace CombatAgent
 {
@@ -65,14 +51,17 @@ namespace CombatAgent
             {
                 if (res.Reset)
                 {
+                    Config.Interval = res.Interval;
+                    Config.Speed = res.Speed;
                     Restart();
                     return;
                 }
-                PawnController.PerformAction(res.Action);
+
+                PawnController.PerformAction(res.Action.PawnActions);
             }
 
             // Resume the game
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            Find.TickManager.CurTimeSpeed = (TimeSpeed)Config.Speed;
         }
 
         public override void GameComponentTick()
