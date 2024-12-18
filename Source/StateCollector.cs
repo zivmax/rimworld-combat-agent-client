@@ -38,7 +38,7 @@ namespace CombatAgent
         {
             foreach (Pawn pawn in Map.mapPawns.AllHumanlike)
             {
-                bool isIncapable = pawn.DeadOrDowned;
+                bool isIncapable = pawn.DeadOrDowned || pawn.InMentalState || pawn.InAggroMentalState;
                 pawnStatesCache[pawn.LabelShort] = CreatePawnState(
                     pawn.LabelShort,
                     pawn.Faction == Faction.OfPlayer,
