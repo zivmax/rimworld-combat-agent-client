@@ -39,6 +39,12 @@ namespace CombatAgent
             foreach (Pawn pawn in Map.mapPawns.AllHumanlike)
             {
                 bool isIncapable = pawn.DeadOrDowned || pawn.InMentalState || pawn.InAggroMentalState;
+                // For each ally, we also check if he's been drafted
+                if (pawn.Faction == Faction.OfPlayer)
+                {
+                    isIncapable = isIncapable || !pawn.Drafted;
+                }
+                
                 pawnStatesCache[pawn.LabelShort] = CreatePawnState(
                     pawn.LabelShort,
                     pawn.Faction == Faction.OfPlayer,
@@ -49,6 +55,8 @@ namespace CombatAgent
                     isIncapable ? null : GetCombatStats(pawn),
                     isIncapable ? null : GetHealthStats(pawn)
                 );
+
+
             }
         }
 

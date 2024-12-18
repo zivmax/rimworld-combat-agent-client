@@ -36,7 +36,7 @@ namespace CombatAgent
 
             // Pause the game
             Find.TickManager.Pause();
-
+            
             var state = new GameState
             {
                 MapState = StateCollector.CollectMapState(),
