@@ -10,7 +10,7 @@ namespace CombatAgent
     {
         public static Map CreatePocketMap()
         {
-            IntVec3 mapSize = new IntVec3(30, 1, 30);
+            IntVec3 mapSize = new IntVec3(Config.MapSize, 1, Config.MapSize);
             MapParent mapParent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
             mapParent.Tile = TileFinder.RandomSettlementTileFor(Faction.OfPlayer);
             mapParent.SetFaction(Faction.OfPlayer);
