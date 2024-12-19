@@ -22,7 +22,7 @@ namespace CombatAgent
         }
 
         public static void PerformAction(PawnActions actions)
-        {   
+        {
             if (actions == null)
             {
                 return;
@@ -34,9 +34,24 @@ namespace CombatAgent
                 if (pawn != null)
                 {
                     IntVec3 cell = new IntVec3(pawnAction.X, 0, pawnAction.Y);
-                    if (pawn.Drafted)
+
+                    // Check for enemy, tree, or wall at the target position
+                    bool invalidPos = Find.CurrentMap.thingGrid.ThingsListAt(cell).Any(thing =>
+                        thing is Pawn enemy && enemy.Faction.HostileTo(Faction.OfPlayer) ||
+                        thing.def.category == ThingCategory.Plant ||
+                        thing.def.category == ThingCategory.Building);
+
+                    // Check if the target position is the same as the pawn's current position
+                    invalidPos = invalidPos || (cell.x == pawn.Position.x && cell.z == pawn.Position.z);
+
+                    // Check if the target position is in map bounds
+                    invalidPos = invalidPos || cell.x < 0 || cell.x >= Find.CurrentMap.Size.x || cell.z < 0 || cell.z >= Find.CurrentMap.Size.z;
+
+                    if ( !invalidPos && pawn.Drafted)
                     {
-                        pawn.jobs.StartJob(new Job(JobDefOf.Goto, cell), JobCondition.InterruptForced);
+                        Job job = JobMaker.MakeJob(JobDefOf.Goto, cell);
+                        job.playerForced = true;
+                        pawn.jobs.StartJob(job, JobCondition.InterruptForced);
                     }
                 }
                 else
