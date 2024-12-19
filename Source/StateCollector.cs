@@ -44,7 +44,7 @@ namespace CombatAgent
                 {
                     isIncapable = isIncapable || !pawn.Drafted;
                 }
-                
+
                 pawnStatesCache[pawn.LabelShort] = CreatePawnState(
                     pawn.LabelShort,
                     pawn.Faction == Faction.OfPlayer,
@@ -180,7 +180,7 @@ namespace CombatAgent
             var capableAllies = pawnStatesCache.Values.Count(pawn => pawn.IsAlly && !pawn.IsIncapable);
             var capableEnemies = pawnStatesCache.Values.Count(pawn => !pawn.IsAlly && !pawn.IsIncapable);
 
-            int expectedPawnCount = countBlackMan ? 7 : 6;
+            int expectedPawnCount = countBlackMan ? Config.TeamSize * 2 + 1 : Config.TeamSize * 2;
 
             if (capableEnemies == 0)
             {

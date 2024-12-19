@@ -10,7 +10,7 @@ namespace CombatAgent
         public static void GenPawns(Map map)
         {
             // Generate Ally
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < Config.TeamSize; i++)
             {
                 PawnKindDef pawnKind = PawnKindDefOf.Colonist;
                 pawnKind.race = ThingDefOf.Human;
@@ -31,7 +31,7 @@ namespace CombatAgent
             }
 
             // Generate Enemy
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < Config.TeamSize; i++)
             {
                 PawnKindDef pawnKind = PawnKindDefOf.Pirate;
                 pawnKind.race = ThingDefOf.Human;
