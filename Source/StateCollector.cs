@@ -26,10 +26,9 @@ namespace CombatAgent
         // Pawn-related methods
         public static PawnStates CollectPawnStates()
         {
-            pawnStatesCache.Clear();
-
             ProcessLivingPawns();
             ProcessCorpses();
+            ProcessEscapers();
 
             return pawnStatesCache;
         }
@@ -66,17 +65,23 @@ namespace CombatAgent
             {
                 if (thing is Corpse corpse && corpse.InnerPawn.RaceProps.Humanlike)
                 {
-                    pawnStatesCache[corpse.InnerPawn.LabelShort] = CreatePawnState(
-                        corpse.InnerPawn.LabelShort,
-                        corpse.InnerPawn.Faction == Faction.OfPlayer,
-                        corpse.Position,
-                        isIncapable: true,
-                        isAiming: false,
-                        equipment: "",
-                        combatStats: null,
-                        healthStats: null
-                    );
+                    pawnStatesCache[corpse.InnerPawn.LabelShort].IsIncapable = true;
                 }
+            }
+        }
+
+        private static void ProcessEscapers()
+        {
+            HashSet<string> currentPawnLabels = new HashSet<string>(
+                Map.mapPawns.AllHumanlike.Select(p => p.LabelShort)
+                .Concat(Map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
+                    .OfType<Corpse>()
+                    .Where(c => c.InnerPawn.RaceProps.Humanlike)
+                    .Select(c => c.InnerPawn.LabelShort)));
+
+            foreach (var pawn in pawnStatesCache.Where(p => !currentPawnLabels.Contains(p.Key)).ToList())
+            {
+                pawnStatesCache[pawn.Key].IsIncapable = true;
             }
         }
 
