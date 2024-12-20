@@ -17,6 +17,7 @@ namespace CombatAgent
             Find.WorldObjects.Add(mapParent);
             Current.Game.Scenario = Current.Game.Scenario ?? ScenarioDefOf.Tutorial.scenario;
             Map map = MapGenerator.GenerateMap(mapSize, mapParent, MapGeneratorDefOf.Encounter);
+            Rand.Seed = 4048;
 
             // Set all terrain to soil and clear everything
             foreach (IntVec3 cell in map.AllCells)
@@ -56,7 +57,7 @@ namespace CombatAgent
                 IntVec3 center = map.Center;
                 // Define the L-shape dimensions
                 int mainLength = 7;
-                int mainWidth = 5;
+                int mainWidth = 4;
                 int wingLength = 5;
                 int wingWidth = 4;
 
@@ -95,10 +96,10 @@ namespace CombatAgent
                 }
 
                 // Add some internal walls for rooms
-                for (int x = 1; x < 3; x++)
+                for (int x = 1; x < 5; x++)
                 {
                     IntVec3 pos = center + new IntVec3(x, 0, 0);
-                    if (Rand.Value < 0.8f)
+                    if (Rand.Value < 0.7f)
                     {
                         Thing wall = ThingMaker.MakeThing(ThingDefOf.Wall, ThingDefOf.BlocksGranite);
                         GenSpawn.Spawn(wall, pos, map);
