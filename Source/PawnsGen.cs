@@ -24,10 +24,7 @@ namespace CombatAgent
                 {
                     newAlly.story.traits.RemoveTrait(newAlly.story.traits.allTraits[num]);
                 }
-                foreach (var hediff in newAlly.health.hediffSet.hediffs.ToList())
-                {
-                    newAlly.health.RemoveHediff(hediff);
-                }
+                newAlly.health.Reset();
                 newAlly.skills.GetSkill(SkillDefOf.Shooting).Level = 5;
                 newAlly.skills.GetSkill(SkillDefOf.Melee).Level = 5;
                 GenSpawn.Spawn(newAlly, position, map);
@@ -51,10 +48,7 @@ namespace CombatAgent
                 {
                     newEnemy.story.traits.RemoveTrait(newEnemy.story.traits.allTraits[num]);
                 }
-                foreach (var hediff in newEnemy.health.hediffSet.hediffs.ToList())
-                {
-                    newEnemy.health.RemoveHediff(hediff);
-                }
+                newEnemy.health.Reset();
                 newEnemy.skills.GetSkill(SkillDefOf.Shooting).Level = 5;
                 newEnemy.skills.GetSkill(SkillDefOf.Melee).Level = 5;
                 GenSpawn.Spawn(newEnemy, position, map);
