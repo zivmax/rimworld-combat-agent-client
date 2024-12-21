@@ -17,7 +17,7 @@ namespace CombatAgent
             Find.WorldObjects.Add(mapParent);
             Current.Game.Scenario = Current.Game.Scenario ?? ScenarioDefOf.Tutorial.scenario;
             Map map = MapGenerator.GenerateMap(mapSize, mapParent, MapGeneratorDefOf.Encounter);
-            Rand.Seed = 4048;
+            Rand.Seed = Config.RandomSeed ?? GenTicks.TicksAbs;
 
             // Set all terrain to soil and clear everything
             foreach (IntVec3 cell in map.AllCells)

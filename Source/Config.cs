@@ -7,6 +7,7 @@ namespace CombatAgent
         public static int MapSize { get; set; } = 15;
         public static bool MapGenTrees { get; set; } = false;
         public static bool MapGenRuin { get; set; } = true;
+        public static int? RandomSeed { get; set; } = 4048;
         public static float Interval { get; set; } = 1.0f;
         public static int Speed { get; set; } = 1;
     }
