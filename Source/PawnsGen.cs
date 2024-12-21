@@ -19,9 +19,14 @@ namespace CombatAgent
                 IntVec3 position = new IntVec3(0, 0, 0);
                 newAlly.story.Childhood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "ColonyChild59");
                 newAlly.story.Adulthood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "Colonist97");
+                newAlly.ageTracker.AgeBiologicalTicks = (30 * 3600000L); // Set age to 30
                 for (int num = newAlly.story.traits.allTraits.Count - 1; num >= 0; num--)
                 {
                     newAlly.story.traits.RemoveTrait(newAlly.story.traits.allTraits[num]);
+                }
+                foreach (var hediff in newAlly.health.hediffSet.hediffs.ToList())
+                {
+                    newAlly.health.RemoveHediff(hediff);
                 }
                 newAlly.skills.GetSkill(SkillDefOf.Shooting).Level = 5;
                 newAlly.skills.GetSkill(SkillDefOf.Melee).Level = 5;
@@ -41,9 +46,14 @@ namespace CombatAgent
                 IntVec3 position = new IntVec3(map.Size.x - 1, 0, map.Size.z - 1);
                 newEnemy.story.Childhood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "ColonyChild59");
                 newEnemy.story.Adulthood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "Colonist97");
+                newEnemy.ageTracker.AgeBiologicalTicks = (30 * 3600000L); // Set age to 30
                 for (int num = newEnemy.story.traits.allTraits.Count - 1; num >= 0; num--)
                 {
                     newEnemy.story.traits.RemoveTrait(newEnemy.story.traits.allTraits[num]);
+                }
+                foreach (var hediff in newEnemy.health.hediffSet.hediffs.ToList())
+                {
+                    newEnemy.health.RemoveHediff(hediff);
                 }
                 newEnemy.skills.GetSkill(SkillDefOf.Shooting).Level = 5;
                 newEnemy.skills.GetSkill(SkillDefOf.Melee).Level = 5;
