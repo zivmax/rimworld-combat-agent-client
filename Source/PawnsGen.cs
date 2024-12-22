@@ -88,7 +88,10 @@ namespace CombatAgent
                 }
                 if (lord == null || !lord.CanAddPawn(pawn))
                 {
-                    lord = LordMaker.MakeNewLord(pawn.Faction, new LordJob_DefendPoint(pawn.Position), Find.CurrentMap);
+                    if (Config.ActivelyAttack)
+                        lord = LordMaker.MakeNewLord(pawn.Faction, new LordJob_AssaultColony(Faction.OfPirates, canTimeoutOrFlee: Config.CanFlee, canPickUpOpportunisticWeapons: true, useAvoidGridSmart: true), Find.CurrentMap);
+                    else
+                        lord = LordMaker.MakeNewLord(pawn.Faction, new LordJob_DefendPoint(pawn.Position), Find.CurrentMap);
                 }
                 if (lord != null && lord.LordJob.CanAutoAddPawns)
                 {
