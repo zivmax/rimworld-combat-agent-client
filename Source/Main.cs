@@ -19,9 +19,6 @@ namespace CombatAgent
 
         private static void Reset()
         {
-            reseting = true;
-
-
             StateCollector.Reset();
             Current.Game.CurrentMap.Parent.Destroy();
             Root_Play.SetupForQuickTestPlay();
@@ -57,14 +54,18 @@ namespace CombatAgent
                 {
                     if (reset_times >= Config.RestartInterval)
                     {
+                        reseting = true;
                         GenCommandLine.Restart();
                     }
-
-                    Config.Interval = res.Interval;
-                    Config.Speed = res.Speed;
-                    Reset();
-                    reset_times++;
-                    return;
+                    else
+                    {
+                        Config.Interval = res.Interval;
+                        Config.Speed = res.Speed;
+                        reseting = true;
+                        Reset();
+                        reset_times++;
+                        return;
+                    }
                 }
 
                 PawnController.PerformAction(res.Action.PawnActions);
