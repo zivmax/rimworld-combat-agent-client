@@ -8,7 +8,8 @@ namespace CombatAgent
         public CombatAgentMain(Game game) { }
 
         private Map trainMap;
-        private static bool restarting = true;
+        private static bool reseting = true;
+        private static int reset_times = 0;
 
         private static int Second(float second)
         {
@@ -16,27 +17,30 @@ namespace CombatAgent
             return (int)(second * 60);
         }
 
-        private static void Restart()
+        private static void Reset()
         {
-            restarting = true;
+            reseting = true;
+
+
             StateCollector.Reset();
             Current.Game.CurrentMap.Parent.Destroy();
             Root_Play.SetupForQuickTestPlay();
             Find.GameInitData.PrepForMapGen();
             Find.Scenario.PreMapGenerate();
             Current.Game.InitNewGame();
+
         }
 
         private static void PACycle()
         {
-            if (restarting)
+            if (reseting)
             {
                 return;
             }
 
             // Pause the game
             Find.TickManager.Pause();
-            
+
             var state = new GameState
             {
                 MapState = StateCollector.CollectMapState(),
@@ -51,9 +55,15 @@ namespace CombatAgent
             {
                 if (res.Reset)
                 {
+                    if (reset_times >= Config.RestartInterval)
+                    {
+                        GenCommandLine.Restart();
+                    }
+
                     Config.Interval = res.Interval;
                     Config.Speed = res.Speed;
-                    Restart();
+                    Reset();
+                    reset_times++;
                     return;
                 }
 
@@ -85,7 +95,7 @@ namespace CombatAgent
             PawnsGen.GenPawns(trainMap);
             CameraJumper.TryJump(trainMap.Center, trainMap);
             PawnController.DraftAllAllies();
-            restarting = false;
+            reseting = false;
             PACycle();
         }
     }
