@@ -16,7 +16,7 @@ namespace CombatAgent
                 pawnKind.race = ThingDefOf.Human;
                 Pawn newAlly = PawnGenerator.GeneratePawn(pawnKind, Faction.OfPlayer);
                 newAlly.equipment.DestroyAllEquipment();
-                IntVec3 position = new IntVec3(0, 0, 0);
+                IntVec3 position = new IntVec3(map.Size.x - 1, 0, map.Size.z - 1);
                 newAlly.story.Childhood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "ColonyChild59");
                 newAlly.story.Adulthood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "Colonist97");
                 newAlly.ageTracker.AgeBiologicalTicks = 30 * 3600000L; // Set age to 30
@@ -40,7 +40,7 @@ namespace CombatAgent
                 Faction faction = FactionUtility.DefaultFactionFrom(PawnKindDefOf.Pirate.defaultFactionType);
                 Pawn newEnemy = PawnGenerator.GeneratePawn(PawnKindDefOf.Pirate, faction);
                 newEnemy.equipment.DestroyAllEquipment();
-                IntVec3 position = new IntVec3(map.Size.x - 1, 0, map.Size.z - 1);
+                IntVec3 position = new IntVec3(0, 0, 0);
                 newEnemy.story.Childhood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "ColonyChild59");
                 newEnemy.story.Adulthood = DefDatabase<BackstoryDef>.AllDefs.FirstOrDefault(b => b.defName == "Colonist97");
                 newEnemy.ageTracker.AgeBiologicalTicks = 30 * 3600000L; // Set age to 30
