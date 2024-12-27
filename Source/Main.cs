@@ -1,5 +1,5 @@
-using Verse;
-
+﻿using Verse;
+using RimWorld;
 
 namespace CombatAgent
 {
@@ -21,11 +21,11 @@ namespace CombatAgent
         {
             StateCollector.Reset();
             Current.Game.CurrentMap.Parent.Destroy();
-            Root_Play.SetupForQuickTestPlay();
-            Find.GameInitData.PrepForMapGen();
-            Find.Scenario.PreMapGenerate();
-            Current.Game.InitNewGame();
-
+            LongEventHandler.QueueLongEvent(delegate
+            {
+                Root_Play.SetupForQuickTestPlay();
+                PageUtility.InitGameStart();
+            }, "GeneratingMap", doAsynchronously: true, GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
         }
 
         private static void PACycle()
