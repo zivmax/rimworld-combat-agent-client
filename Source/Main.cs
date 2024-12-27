@@ -1,4 +1,4 @@
-﻿using Verse;
+using Verse;
 
 
 namespace CombatAgent
@@ -69,6 +69,14 @@ namespace CombatAgent
                 }
 
                 PawnController.PerformAction(res.Action.PawnActions);
+            }
+            else
+            {
+                if (state.Status != GameStatus.RUNNING)
+                {
+                    reseting = true;
+                    Reset();
+                }
             }
 
             // Resume the game
