@@ -1,5 +1,6 @@
 ﻿using Verse;
 using RimWorld;
+using System;
 
 namespace CombatAgent
 {
@@ -25,7 +26,13 @@ namespace CombatAgent
             {
                 Root_Play.SetupForQuickTestPlay();
                 PageUtility.InitGameStart();
-            }, "GeneratingMap", doAsynchronously: true, GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
+            }, "GeneratingMap", doAsynchronously: true, ErrorWhileReset);
+        }
+
+        private static void ErrorWhileReset(Exception e)
+        {
+            Scribe.ForceStop();
+            Reset();
         }
 
         private static void PACycle()
