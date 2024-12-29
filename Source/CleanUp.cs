@@ -46,6 +46,12 @@ namespace CombatAgent
                 def.minThreatPoints = 999f;
             });
 
+            DefDatabase<TraderKindDef>.AllDefs.ToList().ForEach(def => {
+                def.commonality = 0f;
+                def.orbital = false;
+                def.requestable = false;
+            });
+
             DefDatabase<PawnKindDef>.AllDefs
                 .Where(def => def.RaceProps.Animal)
                 .ToList()
