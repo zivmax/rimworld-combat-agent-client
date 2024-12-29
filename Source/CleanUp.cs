@@ -46,7 +46,8 @@ namespace CombatAgent
                 def.minThreatPoints = 999f;
             });
 
-            DefDatabase<TraderKindDef>.AllDefs.ToList().ForEach(def => {
+            DefDatabase<TraderKindDef>.AllDefs.ToList().ForEach(def =>
+            {
                 def.commonality = 0f;
                 def.orbital = false;
                 def.requestable = false;
@@ -55,7 +56,8 @@ namespace CombatAgent
             DefDatabase<PawnKindDef>.AllDefs
                 .Where(def => def.RaceProps.Animal)
                 .ToList()
-                .ForEach(def => {
+                .ForEach(def =>
+                {
                     def.canArriveManhunter = false;
                     def.wildGroupSize = IntRange.zero;
                 });

@@ -50,7 +50,7 @@ namespace CombatAgent
                     }
                 }
             }
-            
+
             if (Config.MapGenRuin)
             {
                 // Add a more complex L-shaped ruin building
