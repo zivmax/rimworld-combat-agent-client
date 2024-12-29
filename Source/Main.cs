@@ -32,7 +32,12 @@ namespace CombatAgent
         private static void ErrorWhileReset(Exception e)
         {
             Scribe.ForceStop();
-            Reset();
+            StateCollector.Reset();
+            LongEventHandler.QueueLongEvent(delegate
+            {
+                Root_Play.SetupForQuickTestPlay();
+                PageUtility.InitGameStart();
+            }, "GeneratingMap", doAsynchronously: true, GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
         }
 
         private static void PACycle()
