@@ -37,6 +37,17 @@ namespace CombatAgent
             {
                 Root_Play.SetupForQuickTestPlay();
                 PageUtility.InitGameStart();
+            }, "GeneratingMap", doAsynchronously: true, ErrorWhileHandleResetError);
+        }
+
+        private static void ErrorWhileHandleResetError(Exception e)
+        {
+            Scribe.ForceStop();
+            StateCollector.Reset();
+            LongEventHandler.QueueLongEvent(delegate
+            {
+                reseting = true;
+                GenCommandLine.Restart();
             }, "GeneratingMap", doAsynchronously: true, GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
         }
 
