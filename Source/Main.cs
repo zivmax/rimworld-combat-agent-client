@@ -44,11 +44,8 @@ namespace CombatAgent
         {
             Scribe.ForceStop();
             StateCollector.Reset();
-            LongEventHandler.QueueLongEvent(delegate
-            {
-                reseting = true;
-                GenCommandLine.Restart();
-            }, "GeneratingMap", doAsynchronously: true, GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
+            reseting = true;
+            GenCommandLine.Restart();
         }
 
         private static void PACycle()
