@@ -22,25 +22,18 @@ namespace CombatAgent
         {
             StateCollector.Reset();
             Current.Game.CurrentMap.Parent.Destroy();
-            LongEventHandler.QueueLongEvent(delegate
-            {
+            
+            try {
                 Root_Play.SetupForQuickTestPlay();
                 PageUtility.InitGameStart();
-            }, "GeneratingMap", doAsynchronously: true, ErrorWhileReset);
+            }
+            catch (Exception e)
+            {
+                ErrorWhileReset(e);
+            }
         }
 
         private static void ErrorWhileReset(Exception e)
-        {
-            Scribe.ForceStop();
-            StateCollector.Reset();
-            LongEventHandler.QueueLongEvent(delegate
-            {
-                Root_Play.SetupForQuickTestPlay();
-                PageUtility.InitGameStart();
-            }, "GeneratingMap", doAsynchronously: true, ErrorWhileHandleResetError);
-        }
-
-        private static void ErrorWhileHandleResetError(Exception e)
         {
             Scribe.ForceStop();
             StateCollector.Reset();
