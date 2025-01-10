@@ -2,6 +2,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Build (Linux)",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "build dll linux",
+            "runtimeExecutable": "echo",
+            "args": [
+                "Pre-launch task completed"
+            ]
+        },
+        {
             "name": "Debug (Linux)",
             "type": "coreclr",
             "request": "launch",
@@ -30,6 +40,18 @@
             "console": "internalConsole",
             "internalConsoleOptions": "neverOpen",
             "stopAtEntry": true
+        },
+        {
+            "name": "Build (Windows)",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "build dll windows",
+            "runtimeExecutable": "cmd.exe",
+            "args": [
+                "/c",
+                "echo",
+                "Pre-launch task completed"
+            ],
         },
         {
             "name": "Debug (Win64)",
