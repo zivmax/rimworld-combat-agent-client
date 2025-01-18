@@ -4,9 +4,6 @@ using Verse;
 using Verse.AI;
 using RimWorld;
 
-using System.Collections.Generic;
-using Verse.AI.Group;
-
 
 namespace CombatAgent
 {
