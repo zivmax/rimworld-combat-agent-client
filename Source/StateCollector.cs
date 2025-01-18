@@ -44,6 +44,14 @@ namespace CombatAgent
                     isIncapable = isIncapable || !pawn.Drafted;
                 }
 
+                bool wasIncapable = pawnStatesCache.ContainsKey(pawn.LabelShort) &&
+                          pawnStatesCache[pawn.LabelShort].IsIncapable;
+
+                if (isIncapable && !wasIncapable)
+                {
+                    Log.Message($"Pawn {pawn.LabelShort} is incapable. DeadOrDowned: {pawn.DeadOrDowned}, InMentalState: {pawn.InMentalState}, InAggroMentalState: {pawn.InAggroMentalState}");
+                }
+
                 pawnStatesCache[pawn.LabelShort] = CreatePawnState(
                     pawn.LabelShort,
                     pawn.Faction == Faction.OfPlayer,
@@ -54,8 +62,6 @@ namespace CombatAgent
                     isIncapable ? null : GetCombatStats(pawn),
                     isIncapable ? null : GetHealthStats(pawn)
                 );
-
-
             }
         }
 
@@ -180,19 +186,17 @@ namespace CombatAgent
 
             return mapStateCache;
         }
-        public static GameStatus CheckGameStatus(bool countBlackMan = false)
+        public static GameStatus CheckGameStatus()
         {
             var capableAllies = pawnStatesCache.Values.Count(pawn => pawn.IsAlly && !pawn.IsIncapable);
             var capableEnemies = pawnStatesCache.Values.Count(pawn => !pawn.IsAlly && !pawn.IsIncapable);
-
-            int expectedPawnCount = countBlackMan ? Config.TeamSize * 2 + 1 : Config.TeamSize * 2;
 
             if (capableEnemies == 0)
             {
                 return GameStatus.WIN;
             }
 
-            if (capableAllies == 0 || pawnStatesCache.Count > expectedPawnCount)
+            if (capableAllies == 0)
             {
                 return GameStatus.LOSE;
             }
