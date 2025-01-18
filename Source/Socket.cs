@@ -1,8 +1,9 @@
 using System;
+using System.Net.Sockets;
+using System.IO;
 using System.Text.Json;
 
 using Verse;
-
 
 namespace CombatAgent
 {
@@ -17,23 +18,25 @@ namespace CombatAgent
 
     public static class SocketClient
     {
-        private static System.Net.Sockets.TcpClient client;
-        private static System.IO.StreamWriter writer;
-        private static System.IO.StreamReader reader;
+        private static TcpClient client;
+        private static StreamWriter writer;
+        private static StreamReader reader;
         private static bool initialized = false;
+
 
         static SocketClient()
         {
             try
             {
-                client = new System.Net.Sockets.TcpClient("localhost", 10086);
+                client = new TcpClient(Config.ServerAddress, Config.ServerPort);
                 var stream = client.GetStream();
-                writer = new System.IO.StreamWriter(stream);
-                reader = new System.IO.StreamReader(stream);
+                writer = new StreamWriter(stream);
+                reader = new StreamReader(stream);
+                Log.Message("Successfully reconnected to socket server");
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to initialize socket connection: {e.Message}");
+                Log.Warning($"Failed to initialize socket connection: {e.Message}");
             }
         }
 
@@ -50,26 +53,24 @@ namespace CombatAgent
             try
             {
                 client?.Close();
-                client = new System.Net.Sockets.TcpClient("localhost", 10086);
+                client = new TcpClient(Config.ServerAddress, Config.ServerPort);
                 var stream = client.GetStream();
-                writer = new System.IO.StreamWriter(stream);
-                reader = new System.IO.StreamReader(stream);
+                writer = new StreamWriter(stream);
+                reader = new StreamReader(stream);
                 Log.Message("Successfully reconnected to socket server");
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to reconnect: {e.Message}");
+                Log.Warning($"Failed to reconnect: {e.Message}");
             }
         }
-
 
         private static bool IsConnected()
         {
             try
             {
                 return client != null && client.Connected &&
-                       !(client.Client.Poll(1, System.Net.Sockets.SelectMode.SelectRead) &&
-                     client.Client.Available == 0);
+                       !(client.Client.Poll(1, SelectMode.SelectRead) && client.Client.Available == 0);
             }
             catch
             {
@@ -82,7 +83,6 @@ namespace CombatAgent
             public string Type { get; set; }
             public object Data { get; set; }
         }
-
 
         private static DataPak ReceiveData()
         {
@@ -102,7 +102,7 @@ namespace CombatAgent
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to receive action: {e.Message}");
+                Log.Warning($"Failed to receive action: {e.Message}");
                 Reconnect();
                 return null;
             }
@@ -125,12 +125,10 @@ namespace CombatAgent
             }
             catch (Exception e)
             {
-                Log.Error($"Failed to send data: {e.Message}");
+                Log.Warning($"Failed to send data: {e.Message}");
                 Reconnect();
             }
         }
-
-
 
         public static AgentResponse SendState(GameState state)
         {
@@ -150,6 +148,5 @@ namespace CombatAgent
 
             return JsonSerializer.Deserialize<AgentResponse>(JsonSerializer.Serialize(response.Data));
         }
-
     }
 }
