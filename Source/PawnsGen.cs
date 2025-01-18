@@ -1,4 +1,5 @@
 using System.Linq;
+
 using Verse;
 using RimWorld;
 using Verse.AI.Group;
@@ -29,7 +30,7 @@ namespace CombatAgent
                 newAlly.skills.GetSkill(SkillDefOf.Melee).Level = 5;
                 GenSpawn.Spawn(newAlly, position, map);
                 PostPawnSpawn(newAlly);
-                Log.Message($"Generated new ally {newAlly.Name} on new map at origin");
+                Log.Message($"Generated new ally {newAlly.Name} on new map at {position}");
             }
 
             // Generate Enemy
@@ -53,7 +54,7 @@ namespace CombatAgent
                 newEnemy.skills.GetSkill(SkillDefOf.Melee).Level = 5;
                 GenSpawn.Spawn(newEnemy, position, map);
                 PostPawnSpawn(newEnemy);
-                Log.Message($"Generated new enemy {newEnemy.Name} on new map at top right");
+                Log.Message($"Generated new enemy {newEnemy.Name} on new map at {position}");
             }
 
             foreach (Pawn pawn in map.mapPawns.AllHumanlike)
@@ -67,7 +68,7 @@ namespace CombatAgent
                 ThingDef flakPantsDef = ThingDef.Named("Apparel_FlakPants");
                 ThingDef flakJacketDef = ThingDef.Named("Apparel_FlakJacket");
                 Thing flakVest = ThingMaker.MakeThing(flakVestDef, null);
-                Thing flakHelmet = ThingMaker.MakeThing(flakHelmetDef, null);
+                Thing flakHelmet = ThingMaker.MakeThing(flakHelmetDef, ThingDefOf.Plasteel);
                 Thing flakPants = ThingMaker.MakeThing(flakPantsDef, null);
                 Thing flakJacket = ThingMaker.MakeThing(flakJacketDef, null);
                 pawn.apparel.Wear((Apparel)flakVest, dropReplacedApparel: false);
