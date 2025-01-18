@@ -17,6 +17,17 @@ namespace CombatAgent
             Find.WorldObjects.Add(mapParent);
             Current.Game.Scenario = Current.Game.Scenario ?? ScenarioDefOf.Tutorial.scenario;
             Map map = MapGenerator.GenerateMap(mapSize, mapParent, MapGeneratorDefOf.Encounter);
+            map = DrawMap(map);
+            return map;
+        }
+
+        public static void RefreshMap(Map map)
+        {
+            DrawMap(map);
+        }
+
+        private static Map DrawMap(Map map)
+        {
             Rand.Seed = Config.RandomSeed ?? GenTicks.TicksAbs;
 
             // Set all terrain to soil and clear everything
@@ -106,7 +117,6 @@ namespace CombatAgent
                     }
                 }
             }
-
             return map;
         }
     }

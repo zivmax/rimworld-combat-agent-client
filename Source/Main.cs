@@ -1,6 +1,5 @@
 ﻿using Verse;
 using RimWorld;
-using System;
 
 namespace CombatAgent
 {
@@ -10,46 +9,57 @@ namespace CombatAgent
 
         private Map trainMap;
         private static bool reseting = true;
-        private static int reset_times = 0;
+        private static int qResetTimes = 0;
 
         private static int Second(float second)
         {
-            // 60 ticks per second
             return (int)(second * 60);
         }
 
         private static void Reset()
         {
-            StateCollector.Reset();
-            Current.Game.CurrentMap.Parent.Destroy();
-            
-            try {
-                Root_Play.SetupForQuickTestPlay();
-                PageUtility.InitGameStart();
-            }
-            catch (Exception e)
+            reseting = true;
+            Log.Message("Starting reset process...");
+            if (qResetTimes >= Config.fResetInterval && Config.fResetInterval != 0)
             {
-                ErrorWhileReset(e);
+                FullReset();
+                qResetTimes = 0;
             }
+            else
+            {
+                QuickReset();
+            }
+            Log.Clear();
+            Messages.Clear();
+            reseting = false;
         }
 
-        private static void ErrorWhileReset(Exception e)
+        private static void FullReset()
         {
-            Scribe.ForceStop();
+            Log.Message("Full reset: Resetting state collector");
             StateCollector.Reset();
-            reseting = true;
-            GenCommandLine.Restart();
+            Current.Game.CurrentMap.Parent.Destroy();
+            Root_Play.SetupForQuickTestPlay();
+            PageUtility.InitGameStart();
+        }
+
+        private static void QuickReset()
+        {
+            Log.Message("Quick reset: Resetting state collector");
+            StateCollector.Reset();
+            CleanUp.CleanCurrentMap();
+            MapGen.RefreshMap(Current.Game.CurrentMap);
+            PawnsGen.GenPawns(Current.Game.CurrentMap);
+            PawnController.DraftAllAllies();
+            Find.TickManager.DebugSetTicksGame(Second(0));
+            Find.TickManager.ResetSettlementTicks();
+            qResetTimes++;
+            Log.Message("Quick reset completed");
         }
 
         private static void PACycle()
         {
-            if (reseting)
-            {
-                return;
-            }
-
-            // Pause the game
-            Find.TickManager.Pause();
+            Log.Message($"Starting PA Cycle at tick {Find.TickManager.TicksGame}");
 
             var state = new GameState
             {
@@ -59,65 +69,51 @@ namespace CombatAgent
                 Status = StateCollector.CheckGameStatus()
             };
 
+            Log.Message($"Waiting for agent response");
             AgentResponse res = SocketClient.SendState(state);
 
             if (Config.AgentControlEnabled)
             {
                 if (res.Reset)
                 {
-                    if (reset_times >= Config.RestartInterval)
-                    {
-                        reseting = true;
-                        GenCommandLine.Restart();
-                    }
-                    else
-                    {
-                        Config.Interval = res.Interval;
-                        Config.Speed = res.Speed;
-                        reseting = true;
-                        Reset();
-                        reset_times++;
-                        return;
-                    }
+                    Reset();
+                    return;
                 }
-
                 PawnController.PerformAction(res.Action.PawnActions);
             }
-            else
+            else if (state.Status != GameStatus.RUNNING)
             {
-                if (state.Status != GameStatus.RUNNING)
-                {
-                    reseting = true;
-                    Reset();
-                }
+                Log.Message("Game not running, initiating reset");
+                Reset();
             }
 
-            // Resume the game
             Find.TickManager.CurTimeSpeed = (TimeSpeed)Config.Speed;
         }
 
         public override void GameComponentTick()
         {
+            if (reseting)
+                return;
+
             if (Find.TickManager.TicksGame % Second(Config.Interval) == 0)
             {
+                Find.TickManager.Pause();
                 PACycle();
+                Find.TickManager.CurTimeSpeed = (TimeSpeed)Config.Speed;
             }
-        }
-
-        public override void FinalizeInit()
-        {
-            PrefInitializer.SetPrefs();
         }
 
         public override void StartedNewGame()
         {
-            CleanUp.Clean();
+            Log.Message("Starting new game initialization");
+            CleanUp.CleanWorld();
             trainMap = MapGen.CreatePocketMap();
             Current.Game.CurrentMap = trainMap;
             PawnsGen.GenPawns(trainMap);
             CameraJumper.TryJump(trainMap.Center, trainMap);
             PawnController.DraftAllAllies();
             reseting = false;
+            Log.Message("New game initialization complete");
             PACycle();
         }
     }

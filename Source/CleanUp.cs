@@ -1,25 +1,16 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
-using UnityEngine;
+
 using Verse;
-using Verse.AI;
-using Verse.AI.Group;
-using Verse.Sound;
-using Verse.Noise;
-using Verse.Grammar;
 using RimWorld;
 using RimWorld.Planet;
-using RimWorld.SketchGen;
 
 namespace CombatAgent
 {
     public static class CleanUp
     {
-        public static void Clean()
+        public static void CleanWorld()
         {
             // Delete original pawns
             var pawns = Find.WorldPawns.AllPawnsAliveOrDead.ToList();
@@ -40,6 +31,7 @@ namespace CombatAgent
             }
 
             Find.Storyteller.incidentQueue.Clear();
+            Find.Storyteller.storytellerComps.Clear();
             DefDatabase<IncidentDef>.AllDefs.ToList().ForEach(def =>
             {
                 def.baseChance = 0f;
@@ -61,6 +53,24 @@ namespace CombatAgent
                     def.canArriveManhunter = false;
                     def.wildGroupSize = IntRange.zero;
                 });
+        }
+
+        public static void CleanCurrentMap()
+        {
+            // Clean up all things on the map
+            List<Thing> things = Current.Game.CurrentMap.listerThings.AllThings.ToList();
+            foreach (Thing thing in things)
+            {
+                thing.Destroy();
+            }
+
+
+            // Clean up all pawns on the map
+            List<Pawn> mapPawns = Current.Game.CurrentMap.mapPawns.AllPawns.ToList();
+            foreach (Pawn pawn in mapPawns)
+            {
+                pawn.Destroy();
+            }
         }
     }
 }
